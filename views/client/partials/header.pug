@@ -1,0 +1,55 @@
+
+header.header
+    .container 
+        .row.content
+            .col-2
+                .inner-logo
+                    a(href="/")
+                        img(src="/image/logo.png", alt="")
+            .col-5
+                form(
+                    action="/search"
+                    method="GET"
+                )
+                    div(class="form-group d-flex mb-0")
+                        input(
+                            type="text"
+                            placeholder="Nhập từ khóa..."
+                            class="form-control"
+                            name="keyword"
+                            style="width: 80%"
+                        )   
+                        button(
+                            type="submit"
+                            class="btn btn-primary"
+                        ) Tìm kiếm
+            .col-4
+                .inner-menu
+                    ul
+                        li
+                            a(href="/" class="text-decoration-none") <i class="fa-solid fa-house"></i> Trang chủ 
+                        li(class="sub-menu")
+                            a(href="/products" class="text-decoration-none") <i class="fa-brands fa-product-hunt"></i> Sản phẩm
+                        li
+                            a(href="/artical" class="text-decoration-none") <i class="fa-solid fa-newspaper"></i> Bài viết
+            .col-1.d-flex
+                if(userMDW)
+                    div.user-infor
+                        .inner-user.dropdown.text-center
+                            div.dropdown-toggle(id="userDropdown" data-bs-toggle="dropdown")
+                                <i class="fa-solid fa-circle-user"></i>
+                            ul.dropdown-menu(aria-labelledby="userDropdown")
+                                li
+                                    a.dropdown-item(href="/user/infor") Thông tin cá nhân
+                                li
+                                    a.dropdown-item(href="/user/logout") Đăng xuất
+                        .inner-cart-header  
+                            a(href="/cart" class="text-decoration-none") 
+                                <i class="fa-solid fa-cart-plus"></i>
+                else    
+                    .inner-login 
+                        a(
+                            href=`/user/login`
+                            class="btn btn-primary"
+                            style="padding:6px;"
+                        ) Đăng nhập

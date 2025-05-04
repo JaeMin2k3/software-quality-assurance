@@ -1,0 +1,32 @@
+
+mixin product-item(item)
+    .product-item 
+        .inner-top 
+            div.inner-img
+                img(src=item.thumbnail, alt="")
+            if(item.discountPercentage > 0)
+                div(class="inner-sale")
+                    span -#{item.discountPercentage}%
+            .inner-favor
+                <i class="fa-regular fa-heart"></i>
+            .inner-cart(value=item.id)
+                <i class="fa-solid fa-cart-plus"></i>
+        a(href=`/products/detail/${item.slug}` style="display: block;").inner-content 
+            div(title=item.title).inner-title     
+                    h4 #{item.title}
+            div.inner-price
+                .new-price 
+                    span #{item.newPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}<i class="fa-solid fa-dong-sign"></i>
+                .old-price
+                    span <del>#{item.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}<i class="fa-solid fa-dong-sign"></i></del> 
+            div.inner-featured
+                .inner-tag
+                    span.blue-obj freeship
+                    span.red-obj hot
+                .inner-star
+                    <i class="fa-regular fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+    

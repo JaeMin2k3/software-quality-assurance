@@ -1,0 +1,75 @@
+extends ../../layout/default.pug 
+include ../../mixins/moment.pug
+block main 
+
+    if(product.title)
+        h1(class="mb-4") #{product.title}
+
+    if(product.price)
+        div(Class="mb-4") Giá: <b>#{product.price}$</b>
+    
+
+    if(product.discountPercentage)
+        div(Class="mb-4") Giảm giá: <b>#{product.discountPercentage}%</b>
+    
+
+    if(product.stock)
+        div(Class="mb-4") Còn lại: <b>#{product.stock}</b>
+    
+
+    if(product.thumbnail)
+        div(Class="mb-4") 
+            img(    
+                src=product.thumbnail, 
+                style="width:300px; height:auto;"
+            )
+    
+
+    if product.status
+        div(class="mb-4") 
+            span Trạng thái: 
+            if product.status == "active"
+                span(class="badge text-bg-success") Họat động 
+            else
+                span(class="badge text-bg-danger") Dừng hoạt động
+
+            
+    
+
+    if(product.position)
+        div(Class="mb-4") Vị trí: <b>#{product.position}</b>
+    
+
+    if(product.description)
+        div(Class="mb-4")  !{product.description}
+    div(class="row")
+        div(class="col-3 border-end border-2") <b>Người tạo</b>
+            if(product.createBy.accountId)
+                div(Class="mb-4") 
+                        p #{product.roleCreate.title} #{product.userCreate.fullName} 
+                            +formatDateTime(product.createBy.createdAt) 
+        div(class="col-3 border-end border-2") <b>Lịch sử cập nhật</b>
+            if(product.updatedBy.length > 0)
+                div(class="mb-4")
+                    each update,index in product.userUpdate
+                        p #{update.role.title} #{update.fullName} 
+                            +formatDateTime(product.updatedBy[index].updatedAt)
+        div(class="col-3 border-end border-2") <b>Lịch sử xóa</b>
+            if(product.deletedBy.length > 0)
+                div(class="mb-4")
+                    each deleted ,index in product.userDelete
+                        p #{deleted.role.title} #{deleted.fullName} 
+                            +formatDateTime(product.userDelete[index].deletedAt)
+        div(class="col-3 border-end border-2") <b>Lịch sử khôi phục</b>
+            if(product.restoredBy.length > 0)
+                div(class="mb-4")
+                    each restore,index in product.userRestore
+                        p #{restore.role.title} #{restore.fullName} 
+                            +formatDateTime(product.userRestore[index].restoredAt)
+    if(roleMDW.permissions.includes("products_edit"))
+        a(
+            class="btn btn-warning btn-sm"
+            href=`${prefixAdmin}/products/edit/${product.id}`
+        ) Chỉnh sửa
+
+    script(src=`/admin/js/product.js`)

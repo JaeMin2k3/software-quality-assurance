@@ -1,0 +1,59 @@
+extends ../../layout/default.pug
+include ../../mixins/categoryInfor
+include ../../mixins/Alert
+block main
+    +alert-success(5000)
+    +alert-error(5000)
+    if(roleMDW.permissions.includes("products-category_view"))
+        h1 Danh mục sản phẩm
+        .card.mb-3
+            .card-header Danh sách
+                .card-body
+                    .row.mb-4 
+                        .col-8 
+
+                        .col-2.text-center 
+                            a(
+                                href=`${prefixAdmin}/products-category/deleted-category`
+                                class="btn btn-outline-danger"
+                            ) <i class="fa-solid fa-trash"></i> Đã Xóa
+                        .col-2
+                            if(roleMDW.permissions.includes("products-category_create"))
+                                a(
+                                    href=`${prefixAdmin}/products-category/create`
+                                    class="btn btn-outline-success"
+                                ) <i class="fa-solid fa-file-circle-plus"></i> Thêm mới
+                    table(
+                        class="table table-hover table-sm"
+                        checkbox-multi
+                    )
+                        thead 
+                            tr 
+                                th
+                                    input(
+                                        type= "checkbox"
+                                        name= "checkall"
+                                    )
+                                th STT 
+                                th Hình ảnh
+                                th Tiêu đề
+                                th Vị trí
+                                th Trạng thái 
+                                th Hành động
+
+                        tbody 
+                            +category-infor(categorys)
+        form(
+            id="form-delete-item"
+            action=""
+            method="POST"
+            data-path=`${prefixAdmin}/products-category/delete`
+            form-delete-item
+        ) 
+        form(
+            id="form-change-status"
+            action=""
+            method="POST"
+            data-path=`${prefixAdmin}/products-category/change-status`
+        )
+    script(src="/admin/js/products-category.js")
