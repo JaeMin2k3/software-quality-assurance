@@ -40,7 +40,7 @@ module.exports.indexPost = async (req,res)=>{
         return;
     }
     res.cookie("token", user.token)
-   res.redirect(`${systemConfig.prefixAdmin}/dashboard`)
+   res.redirect(`${systemConfig.prefixAdmin}/products`)
 }
 // [GET] /admin/auth/logout
 module.exports.logout = async (req,res)=>{

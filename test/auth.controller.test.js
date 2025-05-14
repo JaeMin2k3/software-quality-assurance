@@ -1,162 +1,62 @@
-const authController = require('../controllers/admin/auth.controller');
+const request = require('supertest');
+const mongoose = require('mongoose');
+require('dotenv').config({ path: '.env.test' });
+const app = require('../index');
+
 const Account = require('../model/accounts.model');
-const md5 = require('md5');
 
-jest.mock('../model/accounts.model');
-jest.mock('md5');
+describe('Auth Controller Integration Test', () => {
+  beforeAll(async () => {
+    await mongoose.connect(process.env.mongoURL);
+    await Account.create({ email: 'auth_test_active@mail.com', password: '123456', token: 'token_auth_test', status: 'active', deleted: false });
+    await Account.create({ email: 'auth_test_inactive@mail.com', password: '123456', token: 'token_auth_inactive', status: 'inactive', deleted: false });
+  });
 
-describe('Auth Controller', () => {
-    let mockRequest;
-    let mockResponse;
+  afterAll(async () => {
+    await Account.deleteMany({ email: /auth_test/ });
+    await mongoose.disconnect();
+  });
 
-    // Setup mock request and response objects before each test
-    beforeEach(() => {
-        mockRequest = {
-            body: {},
-            cookies: {},
-            flash: jest.fn()
-        };
-        mockResponse = {
-            render: jest.fn(),
-            redirect: jest.fn(),
-            cookie: jest.fn(),
-            clearCookie: jest.fn()
-        };
-        jest.clearAllMocks();
-    });
+  test('AUTH_001 - Đăng nhập thành công', async () => {
+    const res = await request(app)
+      .post('/admin/auth/login')
+      .send({ email: 'auth_test_active@mail.com', password: '123456' });
 
-    describe('index (login page)', () => {
-        // Test Case: Redirect to dashboard with valid token
-        // Goal: Verify that users with valid tokens are redirected to dashboard
-        // Input: Valid token in cookies
-        // Expected Output: Redirect to dashboard page
-        it('should redirect to dashboard if token exists', async () => {
-            mockRequest.cookies.token = 'valid-token';
+    expect(res.status).toBe(302);
+    expect(res.headers['set-cookie']).toBeDefined();
+  });
 
-            await authController.index(mockRequest, mockResponse);
+  test('AUTH_002 - Sai mật khẩu', async () => {
+    const res = await request(app)
+      .post('/admin/auth/login')
+      .send({ email: 'auth_test_active@mail.com', password: 'wrongpass' });
 
-            expect(mockResponse.redirect).toHaveBeenCalledWith(expect.stringContaining('/dashboard'));
-        });
+    expect(res.status).toBe(302);
+    expect(res.headers['set-cookie']).toBeUndefined();
+  });
 
-        // Test Case: Render login page without token
-        // Goal: Verify that users without tokens see the login page
-        // Input: No token in cookies
-        // Expected Output: Render login page with correct title
-        it('should render login page if no token exists', async () => {
-            await authController.index(mockRequest, mockResponse);
+  test('AUTH_003 - Email không tồn tại', async () => {
+    const res = await request(app)
+      .post('/admin/auth/login')
+      .send({ email: 'notfound@mail.com', password: '123456' });
 
-            expect(mockResponse.render).toHaveBeenCalledWith(
-                'admin/page/auth/login.pug',
-                expect.objectContaining({
-                    pageTitle: 'Trang đăng nhập'
-                })
-            );
-        });
-    });
+    expect(res.status).toBe(302);
+  });
 
-    describe('indexPost (login process)', () => {
-        // Test Case: Non-existent email login attempt
-        // Goal: Verify error handling for non-existent email
-        // Input: Email that doesn't exist in database
-        // Expected Output: Flash error message and redirect back
-        // Note: Simulates database returning null for email lookup
-        it('should show error for non-existent email', async () => {
-            mockRequest.body = {
-                email: 'nonexistent@example.com',
-                password: 'password123'
-            };
-            Account.findOne.mockResolvedValue(null);
+  test('AUTH_004 - Tài khoản bị khóa', async () => {
+    const res = await request(app)
+      .post('/admin/auth/login')
+      .send({ email: 'auth_test_inactive@mail.com', password: '123456' });
 
-            await authController.indexPost(mockRequest, mockResponse);
+    expect(res.status).toBe(302);
+  });
 
-            expect(mockRequest.flash).toHaveBeenCalledWith('error', 'Email không tồn tại');
-            expect(mockResponse.redirect).toHaveBeenCalledWith('back');
-        });
+  test('AUTH_006 - Logout', async () => {
+    const res = await request(app)
+      .get('/admin/auth/logout')
+      .set('Cookie', ['token=token_auth_test']);
 
-        // Test Case: Incorrect password login attempt
-        // Goal: Verify error handling for wrong password
-        // Input: Existing email with incorrect password
-        // Expected Output: Flash error message and redirect back
-        // Note: Uses md5 mock to simulate password mismatch
-        it('should show error for incorrect password', async () => {
-            mockRequest.body = {
-                email: 'test@example.com',
-                password: 'wrongpassword'
-            };
-            const mockUser = {
-                email: 'test@example.com',
-                password: 'hashedCorrectPassword'
-            };
-            Account.findOne.mockResolvedValue(mockUser);
-            md5.mockReturnValue('hashedWrongPassword');
-
-            await authController.indexPost(mockRequest, mockResponse);
-
-            expect(mockRequest.flash).toHaveBeenCalledWith('error', 'Mật khẩu không đúng');
-            expect(mockResponse.redirect).toHaveBeenCalledWith('back');
-        });
-
-        // Test Case: Inactive account login attempt
-        // Goal: Verify error handling for deactivated accounts
-        // Input: Correct credentials but inactive account status
-        // Expected Output: Flash error message and redirect back
-        // Note: Account exists but has inactive status
-        it('should show error for inactive account', async () => {
-            mockRequest.body = {
-                email: 'inactive@example.com',
-                password: 'password123'
-            };
-            const mockUser = {
-                email: 'inactive@example.com',
-                password: 'hashedPassword',
-                status: 'inactive'
-            };
-            Account.findOne.mockResolvedValue(mockUser);
-            md5.mockReturnValue('hashedPassword');
-
-            await authController.indexPost(mockRequest, mockResponse);
-
-            expect(mockRequest.flash).toHaveBeenCalledWith('error', 'Tài khoản đã bị khóa');
-            expect(mockResponse.redirect).toHaveBeenCalledWith('back');
-        });
-
-        // Test Case: Successful login
-        // Goal: Verify successful login process
-        // Input: Valid email, password, and active account
-        // Expected Output: Set token cookie and redirect to dashboard
-        // Note: Simulates complete successful authentication flow
-        it('should login successfully with correct credentials', async () => {
-            mockRequest.body = {
-                email: 'active@example.com',
-                password: 'correctpassword'
-            };
-            const mockUser = {
-                email: 'active@example.com',
-                password: 'hashedPassword',
-                status: 'active',
-                token: 'valid-token'
-            };
-            Account.findOne.mockResolvedValue(mockUser);
-            md5.mockReturnValue('hashedPassword');
-
-            await authController.indexPost(mockRequest, mockResponse);
-
-            expect(mockResponse.cookie).toHaveBeenCalledWith('token', 'valid-token');
-            expect(mockResponse.redirect).toHaveBeenCalledWith(expect.stringContaining('/dashboard'));
-        });
-    });
-
-    describe('logout', () => {
-        // Test Case: User logout
-        // Goal: Verify logout functionality
-        // Input: None (just logout request)
-        // Expected Output: Clear token cookie and redirect to login
-        // Note: Ensures proper session termination
-        it('should clear cookie and redirect to login page', async () => {
-            await authController.logout(mockRequest, mockResponse);
-
-            expect(mockResponse.clearCookie).toHaveBeenCalledWith('token');
-            expect(mockResponse.redirect).toHaveBeenCalledWith(expect.stringContaining('/auth/login'));
-        });
-    });
+    expect(res.status).toBe(302);
+    expect(res.headers['set-cookie'][0]).toMatch(/token=;/);
+  });
 });

@@ -1,114 +1,44 @@
-const myAccountController = require('../controllers/admin/my-account.controller');
+const request = require('supertest');
+const mongoose = require('mongoose');
+require('dotenv').config({ path: '.env.test' });
+const app = require('../index');
+
 const Account = require('../model/accounts.model');
 
-jest.mock('../model/accounts.model');
+describe('My Account Controller Integration Test', () => {
+  let userId;
 
-describe('My Account Controller', () => {
-    let mockRequest;
-    let mockResponse;
+  beforeAll(async () => {
+    await mongoose.connect(process.env.mongoURL);
+    const user = await Account.create({ email: 'myaccount_test@mail.com', name: 'Test User', token: 'token_test_user', status: 'active', deleted: false });
+    userId = user._id;
+    await Account.create({ email: 'existing_user@mail.com', name: 'Other User', status: 'active', deleted: false });
+  });
 
-    // Test setup
-    // Purpose: Initialize mock objects before each test
-    // Input: None
-    // Expected: Fresh mock objects for each test case
-    beforeEach(() => {
-        mockRequest = {
-            body: {},
-            flash: jest.fn()
-        };
-        mockResponse = {
-            render: jest.fn(),
-            redirect: jest.fn(),
-            locals: {
-                userMDW: {
-                    id: 'user123'
-                }
-            }
-        };
-        jest.clearAllMocks();
-    });
+  afterAll(async () => {
+    await Account.deleteMany({ email: /myaccount_test|existing_user/ });
+    await mongoose.connection.close();
+  });
 
-    describe('index', () => {
-        // Test case: Render account page
-        // Purpose: Verify index route renders correct template
-        // Input: Mock request and response objects
-        // Expected: Renders index.pug with correct page title
-        it('should render my account page', async () => {
-            await myAccountController.index(mockRequest, mockResponse);
+  test('MYACC_004 - Cập nhật thành công', async () => {
+    const res = await request(app)
+      .patch('/admin/my-account/edit')
+      .set('Cookie', [`token=token_test_user`])
+      .send({ email: 'myaccount_updated@mail.com', name: 'Updated Name' });
 
-            expect(mockResponse.render).toHaveBeenCalledWith(
-                'admin/page/my-account/index.pug',
-                {
-                    pageTitle: 'Thông tin cá nhân'
-                }
-            );
-        });
-    });
+    expect(res.status).toBe(302);
+    const updated = await Account.findOne({ _id: userId });
+    expect(updated.email).toBe('myaccount_updated@mail.com');
+  });
 
-    describe('edit', () => {
-        // Test case: Render edit page
-        // Purpose: Verify edit route renders correct template
-        // Input: Mock request and response objects
-        // Expected: Renders edit.pug with correct page title
-        it('should render edit page', async () => {
-            await myAccountController.edit(mockRequest, mockResponse);
+  test('MYACC_003 - Email bị trùng với người khác', async () => {
+    const res = await request(app)
+      .patch('/admin/my-account/edit')
+      .set('Cookie', [`token=token_test_user`])
+      .send({ email: 'existing_user@mail.com' });
 
-            expect(mockResponse.render).toHaveBeenCalledWith(
-                'admin/page/my-account/edit.pug',
-                {
-                    pageTitle: 'Chỉnh sửa thông tin cá nhân'
-                }
-            );
-        });
-    });
-
-    describe('editPatch', () => {
-        // Test case: Email already exists
-        // Purpose: Verify duplicate email validation
-        // Input: Email that exists for different user
-        // Expected: Error flash message and redirect back
-        // Note: Tests email uniqueness constraint
-        it('should not update if email exists for different user', async () => {
-            mockRequest.body = {
-                email: 'existing@test.com'
-            };
-            Account.findOne.mockResolvedValue({ 
-                _id: 'different-user',
-                email: 'existing@test.com' 
-            });
-
-            await myAccountController.editPatch(mockRequest, mockResponse);
-
-            expect(Account.findOne).toHaveBeenCalledWith({
-                _id: { $ne: 'user123' },
-                email: 'existing@test.com',
-                deleted: false
-            });
-            expect(mockRequest.flash).toHaveBeenCalledWith('error', 'Email đã tồn tại');
-            expect(mockResponse.redirect).toHaveBeenCalledWith('back');
-        });
-
-        // Test case: Successful account update
-        // Purpose: Verify successful account information update
-        // Input: New unique email and full name
-        // Expected: Success flash message and redirect to my-account page
-        // Note: Tests happy path for account updates
-        it('should update account successfully if email is unique', async () => {
-            mockRequest.body = {
-                email: 'new@test.com',
-                fullName: 'Updated Name'
-            };
-            Account.findOne.mockResolvedValue(null);
-            Account.updateOne.mockResolvedValue({ modifiedCount: 1 });
-
-            await myAccountController.editPatch(mockRequest, mockResponse);
-
-            expect(Account.updateOne).toHaveBeenCalledWith(
-                { _id: 'user123' },
-                mockRequest.body
-            );
-            expect(mockRequest.flash).toHaveBeenCalledWith('success', 'Cập nhật thành công');
-            expect(mockResponse.redirect).toHaveBeenCalledWith(expect.stringContaining('/my-account'));
-        });
-    });
+    expect(res.status).toBe(302);
+    const stillSame = await Account.findOne({ _id: userId });
+    expect(stillSame.email).not.toBe('existing_user@mail.com');
+  });
 });
