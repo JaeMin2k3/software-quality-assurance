@@ -33,6 +33,7 @@ module.exports.index = async (req,res)=>{
                 ).toFixed(0)
                 return item;
             })
+            console.log(saleProductsUpdate[0])
         //end sale products
 
         //sort
@@ -189,6 +190,7 @@ module.exports.productOfCategory = async (req,res)=>{
         const listSubCategoryId = await listSubCategory.map(item => {
             return item.id
         })
+        console.log([productCategory.id,...listSubCategoryId])
 
         find.category_id = {$in : [productCategory.id,...listSubCategoryId]};
         

@@ -8,7 +8,7 @@ block sider
         ul 
             each item in productCategorys
                 li 
-                    a(href=`/products/${item.slug}` class="") 
+                    a(href=`/products/?slugCategory=${item.slug}` class="") 
                         div(class="img-box")
                             img(src=item.thumbnail, alt="")
                         p #{item.title}
