@@ -26,7 +26,7 @@ module.exports.registerPost = async (req,res)=>{
     }
 
     // cart
-    const cart = new Cart({});
+    const cart = new Cart();
     await cart.save()
     
     const expiresTime = 1000 * 60 * 60 * 24 * 365  

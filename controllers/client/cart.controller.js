@@ -8,12 +8,16 @@ module.exports.index = async(req,res) =>{
         const cart = await Cart.findOne({
             _id: cartId
         })
+        console.log(cart)
         if(cart.products.length >0){
             for (const product of cart.products) {
                 const productId = product.product_id;
                 const productInfor = await Product.findOne({
                     _id: productId
                 })
+                console.log(productId)
+                console.log(productInfor)
+                
                 productInfor.newPrice = (productInfor.price*(100-productInfor.discountPercentage)/100).toFixed(0);
                 product.productInfor = productInfor
                 product.totalPrice = product.quantity * productInfor.newPrice
@@ -27,7 +31,7 @@ module.exports.index = async(req,res) =>{
         })
     }
     catch(e){
-
+        console.log("Lỗi khi lấy giỏ hàng",e)
     }
 }
 //[get] /delete/:productId
@@ -45,21 +49,23 @@ module.exports.delete = async(req,res) =>{
 }
 //[post] /cart/add/:productId
 module.exports.addPost = async(req,res) =>{
-    const cartId = req.cookies.cartId;           
+    const cartId = req.cookies.cartId;  
+    // console.log(cartId);         
     const productId = req.params.productId;
+    // console.log(productId);
     const quantity = parseInt(req.body.quantity);
 
     const cartObject = {
         product_id : productId,
         quantity: quantity
     } 
-
+    // console.log(cartObject);
 
     const cart = await Cart.findOne({
         _id: cartId
     })
 
-    console.log(cart.products)
+    //  console.log(cart.products)
 
     const existProduct = cart.products.find(item => item.product_id == productId)
     if(existProduct){
@@ -88,6 +94,9 @@ module.exports.addPost = async(req,res) =>{
     req.flash("success", "Thêm vào giỏ hàng thành công")
     res.redirect("back")
 }
+
+
+
 //[get] /update/:productId/:quantity
 module.exports.update = async (req,res) =>{
     const productId = req.params.productId
