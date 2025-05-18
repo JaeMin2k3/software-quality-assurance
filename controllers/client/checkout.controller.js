@@ -8,6 +8,12 @@ module.exports.index = async(req,res) =>{
     const cart = await Cart.findOne({
         _id: cartId
     })
+    
+    if (!cart) {
+        req.flash('error', 'Không tìm thấy giỏ hàng của bạn.');
+        return res.redirect('/cart');
+    }
+
     if(cart.products.length >0){
         for (const product of cart.products) {
             const productId = product.product_id;
