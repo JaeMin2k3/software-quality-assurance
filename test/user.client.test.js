@@ -674,25 +674,28 @@ describe('User Controller', () => {
 
         await userController.loginPost(mockReq, mockRes);
 
-        expect(md5).toHaveBeenCalledWith("");
-        expect(mockReq.flash).toHaveBeenCalledWith("error", "Sai mật khẩu");
+        expect(mockReq.flash).toHaveBeenCalledWith("error", "Mật khẩu là bắt buộc");
         expect(mockRes.redirect).toHaveBeenCalledWith("back");
+        expect(md5).not.toHaveBeenCalled(); // Không nên mã hóa mật khẩu rỗng
     });
 
     /**
      * @Chức năng: Kiểm tra hành vi khi xác thực OTP đã hết hạn.
      * @Mô tả kiểm thử:
      * - Người dùng nhập đúng email và OTP.
-     * - `ForgotPassword.findOne` tìm thấy bản ghi OTP, nhưng trường `expireAt` của bản ghi đó đã qua.
-     * - Controller hiện tại KHÔNG kiểm tra trường `expireAt`.
-     * - Do đó, controller sẽ coi OTP là hợp lệ và cho phép người dùng tiếp tục. Đây là một lỗ hổng bảo mật.
-     * @Dữ liệu đầu vào: `req.body` có email và OTP đúng. `ForgotPassword.findOne` trả về bản ghi có `expireAt` trong quá khứ.
+     * - Bản ghi OTP tồn tại nhưng đã hết hạn (expireAt < hiện tại).
+     * - Controller hiện tại không kiểm tra thời hạn của OTP.
+     * - Cần thêm kiểm tra expireAt để tăng tính bảo mật.
+     * @Dữ liệu đầu vào:
+     * - req.body.email = "user@example.com"
+     * - req.body.otp = "123456"
+     * - ForgotPassword record với expireAt đã qua
      * @Kết quả mong đợi (lý tưởng): Flash lỗi "OTP đã hết hạn", redirect "back".
      * @Kết quả mong đợi (hiện tại, được test): Controller xử lý như OTP hợp lệ, redirect đến trang reset password.
      */
     test('otpPasswordPost: should proceed even if OTP record is expired (current behavior - security flaw)', async () => {
         const email = "user@example.com";
-        const otp = "123456";
+        const otp = "12345678";
         mockReq.body = { email: email, otp: otp };
         const expiredOtpRecord = { email: email, otp: otp, expireAt: Date.now() - 3600000 }; // Hết hạn 1 giờ trước
         ForgotPassword.findOne.mockResolvedValue(expiredOtpRecord);
@@ -700,7 +703,7 @@ describe('User Controller', () => {
 
         await userController.otpPasswordPost(mockReq, mockRes);
 
-        expect(ForgotPassword.findOne).toHaveBeenCalledWith({ email: email, otp: otp });
+        expect(ForgotPassword.findOne).toHaveBeenCalledWith({ email: email, otp: email });
         // Không có kiểm tra expireAt
         expect(mockRes.redirect).toHaveBeenCalledWith("/user/password/reset");
         // Lý tưởng: expect(mockReq.flash).toHaveBeenCalledWith("error", "OTP đã hết hạn");
@@ -726,7 +729,7 @@ describe('User Controller', () => {
         await userController.resetPasswordPost(mockReq, mockRes);
 
         expect(User.updateOne).toHaveBeenCalledWith(
-            { tokenUser: "invalidOrOldToken" },
+            { tokenUser: "1invalidOrOldToken" },
             { password: "md5-newPass" }
         );
         expect(mockReq.flash).toHaveBeenCalledWith("Đổi mật khẩu thành công"); // Thông báo không chính xác

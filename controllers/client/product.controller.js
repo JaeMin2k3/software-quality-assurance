@@ -178,7 +178,6 @@ module.exports.productOfCategory = async (req,res)=>{
             brands : brands
         }
         
-        
         const slug = req.params.slugCategory;
         
         const productCategory = await productsCategory.findOne({
@@ -190,14 +189,20 @@ module.exports.productOfCategory = async (req,res)=>{
             return item.id
         })
 
-        find.category_id = {$in : [productCategory.id,...listSubCategoryId]};
+        // Thêm category_id của danh mục cha vào mảng
+        find.category_id = {$in : [productCategory._id, ...listSubCategoryId]};
         
+        // Thêm brand_id vào điều kiện tìm kiếm nếu có
+        if (req.query.brand) {
+            find.brand_id = req.query.brand;
+        }
+
         //sort
-            const sortKey = req.query.sortKey;
-            const sortValue = req.query.sortValue;
-            if(sortKey && sortValue){
-                sort[sortKey] = sortValue
-            }
+        const sortKey = req.query.sortKey;
+        const sortValue = req.query.sortValue;
+        if(sortKey && sortValue){
+            sort[sortKey] = sortValue
+        }
             else{
                 sort.position = 'desc'
             }

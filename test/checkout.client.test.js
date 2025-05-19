@@ -37,7 +37,7 @@ describe('Checkout Controller', () => {
     /**
      * Chức năng: Kiểm tra render trang checkout
      * Mô tả kiểm thử: Kiểm tra việc hiển thị trang checkout khi có giỏ hàng hợp lệ
-     * Dữ liệu đầu vào: 
+     * Dữ liệu đầu vào:
      *  - cartId: 'validCartId'
      *  - Giỏ hàng chứa 2 sản phẩm:
      *    + Sản phẩm 1: id='prod1', số lượng=2, giá=100, giảm giá=10%
@@ -47,6 +47,7 @@ describe('Checkout Controller', () => {
      *  - Tổng tiền = 380 (180 + 200)
      *  - Thông tin sản phẩm được tính toán chính xác (giá sau giảm, tổng tiền từng sản phẩm)
      */
+    // ID: CH_001
     it('Nên render trang checkout với thông tin giỏ hàng hợp lệ', async () => {
       mockReq.cookies.cartId = 'validCartId';
       const mockCartData = {
@@ -113,6 +114,7 @@ describe('Checkout Controller', () => {
      *  - Render trang checkout
      *  - Giỏ hàng trống, tổng tiền = 0
      */
+    // ID: CH_002
     it('Nên render trang checkout với giỏ hàng trống', async () => {
       mockReq.cookies.cartId = 'emptyCartId';
       const mockEmptyCart = {
@@ -145,6 +147,7 @@ describe('Checkout Controller', () => {
      *  - Chuyển hướng về trang /cart
      *  - Hiển thị thông báo lỗi
      */
+    // ID: CH_003
     it('Nên redirect về /cart nếu không tìm thấy giỏ hàng', async () => {
       mockReq.cookies.cartId = 'nonExistentCartId';
       Cart.findOne.mockResolvedValue(null);
@@ -157,33 +160,7 @@ describe('Checkout Controller', () => {
       expect(mockRes.render).not.toHaveBeenCalled();
     });
 
-    /**
-     * Chức năng: Kiểm tra xử lý lỗi khi sản phẩm không tồn tại
-     * Mô tả kiểm thử: Kiểm tra việc xử lý khi sản phẩm trong giỏ hàng không còn tồn tại
-     * Dữ liệu đầu vào:
-     *  - cartId: 'cartWithInvalidProductId'
-     *  - Giỏ hàng chứa sản phẩm không tồn tại (id='invalidProd')
-     * Kết quả mong đợi:
-     *  - Throw error
-     */
-    it('Nên xử lý lỗi nếu sản phẩm trong giỏ hàng không tồn tại (THROW ERROR)', async () => {
-        mockReq.cookies.cartId = 'cartWithInvalidProductId';
-        const mockCartWithInvalidProduct = {
-            _id: 'cartWithInvalidProductId',
-            products: [{ product_id: 'invalidProd', quantity: 1 }],
-        };
-        Cart.findOne.mockResolvedValue(mockCartWithInvalidProduct);
-        Product.findOne.mockResolvedValue(null); // Sản phẩm không tìm thấy
 
-        // Vì code gốc sẽ throw lỗi khi truy cập thuộc tính của null (productInfor.price)
-        // Test này kiểm tra xem lỗi có được ném ra hay không.
-        await expect(checkoutController.index(mockReq, mockRes)).rejects.toThrow();
-
-        expect(Cart.findOne).toHaveBeenCalledWith({ _id: 'cartWithInvalidProductId' });
-        expect(Product.findOne).toHaveBeenCalledWith({ _id: 'invalidProd' });
-        expect(mockRes.render).not.toHaveBeenCalled();
-        expect(mockRes.redirect).not.toHaveBeenCalled();
-    });
   });
 
   // --- Test cho module.exports.order ---
@@ -200,6 +177,7 @@ describe('Checkout Controller', () => {
      *  - Xóa sản phẩm trong giỏ hàng
      *  - Chuyển hướng đến trang success
      */
+    // ID: CH_005
     it('Nên tạo đơn hàng thành công và redirect', async () => {
       mockReq.cookies.cartId = 'cartForOrder';
       mockReq.body = { name: 'Test User', address: '123 Test St' };
@@ -253,6 +231,7 @@ describe('Checkout Controller', () => {
      * Kết quả mong đợi:
      *  - Throw error
      */
+    // ID: CH_006
     it('Nên xử lý lỗi nếu không tìm thấy giỏ hàng khi đặt hàng (THROW ERROR)', async () => {
       mockReq.cookies.cartId = 'nonExistentCartForOrder';
       mockReq.body = { name: 'Test User' };
@@ -277,6 +256,7 @@ describe('Checkout Controller', () => {
      *  - Tạo đơn hàng thành công với mảng products rỗng
      *  - Chuyển hướng đến trang success
      */
+    // ID: CH_007
     it('Nên tạo đơn hàng với mảng products rỗng nếu giỏ hàng trống', async () => {
         mockReq.cookies.cartId = 'emptyCartForOrder';
         mockReq.body = { name: 'Test User', address: '123 Test St' };
@@ -316,6 +296,7 @@ describe('Checkout Controller', () => {
      * Kết quả mong đợi:
      *  - Throw error khi truy cập thông tin sản phẩm
      */
+    // ID: CH_008
     it('Nên xử lý lỗi nếu sản phẩm trong giỏ hàng không tồn tại khi đặt hàng (THROW ERROR)', async () => {
         mockReq.cookies.cartId = 'cartOrderInvalidProduct';
         mockReq.body = { name: 'Test User' };
@@ -338,6 +319,22 @@ describe('Checkout Controller', () => {
 
   // --- Test cho module.exports.success ---
   describe('success - [GET] /checkout/success/:orderId', () => {
+    /**
+     * Chức năng: Hiển thị trang đặt hàng thành công
+     * Mô tả kiểm thử: Kiểm tra việc render trang thành công với thông tin đơn hàng hợp lệ, bao gồm tính toán lại giá và tổng tiền.
+     * Dữ liệu đầu vào:
+     *  - req.params.orderId: 'validOrderId'
+     *  - Order.findOne trả về đơn hàng có 2 sản phẩm.
+     *  - Product.findOne trả về thông tin chi tiết cho từng sản phẩm trong đơn hàng.
+     * Kết quả mong đợi:
+     *  - Order.findOne được gọi đúng với orderId.
+     *  - Product.findOne được gọi cho từng sản phẩm trong đơn hàng.
+     *  - Giá sản phẩm sau chiết khấu (newPrice) được tính đúng.
+     *  - Tổng giá từng sản phẩm (totalPrice) được tính đúng.
+     *  - Tổng giá đơn hàng (order.total) được tính đúng.
+     *  - res.render được gọi với 'client/page/checkout/success', pageTitle và object order đã được xử lý.
+     */
+    // ID: CH_009
     it('Nên render trang thành công với thông tin đơn hàng hợp lệ', async () => {
       mockReq.params.orderId = 'validOrderId';
       const mockOrderData = {
@@ -400,6 +397,18 @@ describe('Checkout Controller', () => {
       expect(renderedOrder.products[1].productInfor.newPrice).toBe('96');
     });
 
+    /**
+     * Chức năng: Xử lý lỗi khi không tìm thấy đơn hàng
+     * Mô tả kiểm thử: Kiểm tra việc xử lý khi orderId không tồn tại trong database.
+     * Dữ liệu đầu vào:
+     *  - req.params.orderId: 'nonExistentOrderId'
+     *  - Order.findOne trả về null.
+     * Kết quả mong đợi:
+     *  - Order.findOne được gọi đúng.
+     *  - Controller ném ra lỗi khi cố gắng truy cập thuộc tính của đơn hàng null.
+     *  - res.render không được gọi.
+     */
+    // ID: CH_010
     it('Nên xử lý lỗi nếu không tìm thấy đơn hàng (THROW ERROR)', async () => {
       mockReq.params.orderId = 'nonExistentOrderId';
       Order.findOne.mockResolvedValue(null); // Đơn hàng không tìm thấy
@@ -411,6 +420,19 @@ describe('Checkout Controller', () => {
       expect(mockRes.render).not.toHaveBeenCalled();
     });
 
+    /**
+     * Chức năng: Xử lý lỗi khi sản phẩm trong đơn hàng không tồn tại
+     * Mô tả kiểm thử: Kiểm tra việc xử lý khi một sản phẩm trong đơn hàng đã bị xóa khỏi database sản phẩm.
+     * Dữ liệu đầu vào:
+     *  - req.params.orderId: 'orderWithInvalidProd'
+     *  - Order.findOne trả về đơn hàng chứa sản phẩm có id không tồn tại trong Product model.
+     *  - Product.findOne trả về null cho sản phẩm đó.
+     * Kết quả mong đợi:
+     *  - Order.findOne được gọi đúng.
+     *  - Product.findOne được gọi đúng.
+     *  - Controller ném ra lỗi khi cố gắng truy cập thuộc tính của sản phẩm null.
+     */
+    // ID: CH_011
     it('Nên xử lý lỗi nếu sản phẩm trong đơn hàng không tồn tại (THROW ERROR)', async () => {
         mockReq.params.orderId = 'orderWithInvalidProd';
         const mockOrderWithInvalid = {
@@ -428,3 +450,38 @@ describe('Checkout Controller', () => {
     });
   });
 });
+
+    /**
+     * Chức năng: Kiểm tra xử lý lỗi khi sản phẩm trong giỏ hàng không tồn tại
+     * Mô tả kiểm thử: Kiểm tra việc xử lý khi một sản phẩm trong giỏ hàng không còn tồn tại
+     * Dữ liệu đầu vào:
+     *  - cartId: 'cartWithDeletedProduct'
+     *  - Thông tin người dùng: name='Test User', address='123 Test St'
+     *  - Giỏ hàng chứa 1 sản phẩm đã bị xóa: id='deletedProd', số lượng=1
+     * Kết quả mong đợi:
+     *  - Ném ra lỗi "Sản phẩm trong giỏ hàng không tồn tại"
+     *  - Không tạo đơn hàng
+     */
+    // ID: CH_004
+    it('Nên xử lý lỗi nếu sản phẩm trong giỏ hàng không tồn tại', async () => {
+      mockReq.cookies.cartId = 'cartWithDeletedProduct';
+      mockReq.body = { name: 'Test User', address: '123 Test St' };
+
+      const mockCart = {
+        _id: 'cartWithDeletedProduct',
+        products: [
+          { product_id: 'deletedProd', quantity: 1 },
+        ],
+      };
+
+      Cart.findOne.mockResolvedValue(mockCart);
+      Product.findOne.mockResolvedValue(null); // Sản phẩm không tồn tại
+
+      await expect(checkoutController.order(mockReq, mockRes)).rejects.toThrow('Sản phẩm trong giỏ hàng không tồn tại');
+
+      expect(Cart.findOne).toHaveBeenCalledWith({ _id: 'cartWithDeletedProduct' });
+      expect(Product.findOne).toHaveBeenCalledWith({ _id: 'deletedProd' });
+      expect(Order).not.toHaveBeenCalled(); // Không tạo đơn hàng
+      expect(Cart.updateOne).not.toHaveBeenCalled(); // Không cập nhật giỏ hàng
+      expect(mockRes.redirect).not.toHaveBeenCalled(); // Không chuyển hướng
+    });

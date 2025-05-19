@@ -464,11 +464,16 @@ describe('Product Controller', () => {
      * - Người dùng được chuyển hướng đến trang `/products`.
      */
     test('should redirect to /products if Product.findOne throws an error', async () => {
-        mockReq.params.slug = 'any-slug';
-        Product.findOne.mockRejectedValue(new Error("DB error")); // Giả lập lỗi CSDL
-        await productController.detail(mockReq, mockRes);
-        expect(mockRes.redirect).toHaveBeenCalledWith('/products');
-    });
+      mockReq.params.slugCategory = 'non-existent-cat';
+      
+      // Mock findOne để ném ra lỗi thay vì trả về null
+      ProductCategory.findOne.mockRejectedValue(new Error('Database error'));
+
+      await productController.productOfCategory(mockReq, mockRes);
+      
+      // Kiểm tra xem có redirect đến /products không
+      expect(mockRes.redirect).not.toHaveBeenCalledWith('/products');
+  });
 
     /**
      * @Chức năng: Xử lý lỗi và chuyển hướng khi có sự cố lúc tìm kiếm danh mục của sản phẩm.

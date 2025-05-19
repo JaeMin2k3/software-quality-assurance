@@ -51,6 +51,7 @@ describe('Cart Controller', () => {
          * - Tổng giá giỏ hàng (cart.total) được tính đúng.
          * - res.render được gọi với 'client/page/cart/index.pug', pageTitle và object cart đã được xử lý.
          */
+        // ID: CA_001
         test('should render cart with products and calculated totals when cart exists and has products', async () => {
             mockReq.cookies.cartId = "cart_id_123";
 
@@ -134,6 +135,7 @@ describe('Cart Controller', () => {
          * - Product.findOne không được gọi.
          * - res.render được gọi với 'client/page/cart/index.pug', pageTitle và object cart rỗng.
          */
+        // ID: CA_002
         test('should render cart with empty products and total 0 when cart exists but has no products', async () => {
             mockReq.cookies.cartId = "cart_id_empty";
             const mockCartEmpty = { _id: "cart_id_empty", products: [] };
@@ -164,6 +166,7 @@ describe('Cart Controller', () => {
          * - res.render và res.redirect không được gọi.
          * - (Hiện tại `catch` block trống, trong thực tế nên có xử lý lỗi như log error hoặc render trang lỗi).
          */
+        // ID: CA_003
         test('should handle error when cartId is not found or an error occurs', async () => {
             mockReq.cookies.cartId = "non_existent_cart_id";
             // Case 1: Cart.findOne returns null (e.g., cartId doesn't exist)
@@ -194,6 +197,7 @@ describe('Cart Controller', () => {
          * - req.flash được gọi với thông báo thành công.
          * - res.redirect được gọi với "back".
          */
+        // ID: CA_004
         test('should delete product from cart and redirect back', async () => {
             mockReq.params.productId = "product_to_delete_id";
             mockReq.cookies.cartId = "cart_id_123";
@@ -222,6 +226,7 @@ describe('Cart Controller', () => {
          * - req.flash vẫn thông báo "Xóa thành công" (do logic hiện tại không kiểm tra `modifiedCount`).
          * - res.redirect vẫn được gọi với "back".
          */
+        // ID: CA_005
         test('should still call updateOne and redirect back even if productId does not exist in cart', async () => {
             mockReq.params.productId = "non_existent_product_id";
             mockReq.cookies.cartId = "cart_id_valid";
@@ -249,6 +254,7 @@ describe('Cart Controller', () => {
          * - req.flash không được gọi với 'success' (có thể là 'error' nếu có xử lý lỗi chi tiết hơn).
          * - res.redirect vẫn được gọi với "back" (vì block try...catch không xử lý khác biệt).
          */
+        // ID: CA_006
         test('should handle error during deletion and redirect back', async () => {
             mockReq.params.productId = "some_product_id";
             mockReq.cookies.cartId = "some_cart_id";
@@ -277,6 +283,7 @@ describe('Cart Controller', () => {
          * - Cart.updateOne được gọi với `$push` để thêm sản phẩm mới.
          * - req.flash và res.redirect được gọi.
          */
+        // ID: CA_007
         test('should add new product to cart if it does not exist', async () => {
             mockReq.cookies.cartId = "cart_id_add";
             mockReq.params.productId = "new_product_id";
@@ -314,6 +321,7 @@ describe('Cart Controller', () => {
          * - Số lượng sản phẩm được cập nhật đúng (quantity + existingQuantity).
          * - req.flash và res.redirect được gọi.
          */
+        // ID: CA_008
         test('should update quantity if product already exists in cart', async () => {
             mockReq.cookies.cartId = "cart_id_update";
             mockReq.params.productId = "existing_product_id";
@@ -357,6 +365,7 @@ describe('Cart Controller', () => {
          * - req.flash và res.redirect vẫn được gọi.
          * (Lưu ý: Hành vi này không mong muốn trong thực tế và cần được xử lý validation ở middleware hoặc đầu controller.)
          */
+        // ID: CA_009
         test('should add product with NaN quantity if input is non-numeric string', async () => {
             mockReq.cookies.cartId = "cart_id_nan_quantity";
             mockReq.params.productId = "new_product_nan";
@@ -388,6 +397,7 @@ describe('Cart Controller', () => {
          * - req.flash và res.redirect vẫn được gọi.
          * (Lưu ý: Hành vi này không mong muốn trong thực tế; thêm 0 sản phẩm thường không nên tạo một mục mới.)
          */
+        // ID: CA_010
         test('should add product with 0 quantity if input is 0 and product does not exist', async () => {
             mockReq.cookies.cartId = "cart_id_zero_quantity";
             mockReq.params.productId = "new_product_zero";
@@ -418,6 +428,7 @@ describe('Cart Controller', () => {
          * - `Cart.updateOne` được gọi với quantity là số âm, tức là thêm một sản phẩm có số lượng âm vào giỏ.
          * - req.flash và res.redirect vẫn được gọi.
          * (Lưu ý: Hành vi này hoàn toàn không mong muốn trong thực tế.)
+         *    // ID: CA_0011
          */
         test('should add product with negative quantity if input is negative and product does not exist', async () => {
             mockReq.cookies.cartId = "cart_id_neg_quantity";
@@ -448,6 +459,7 @@ describe('Cart Controller', () => {
          * Kết quả mong đợi:
          * - Số lượng sản phẩm trong giỏ sẽ giảm xuống (5 - 2 = 3).
          * - req.flash và res.redirect vẫn được gọi.
+         *  // ID: CA_0012
          */
         test('should decrease quantity if input is negative and product already exists', async () => {
             mockReq.cookies.cartId = "cart_id_update_neg";
@@ -489,6 +501,7 @@ describe('Cart Controller', () => {
          * Kết quả mong đợi:
          * - req.flash không được gọi với 'success'.
          * - res.redirect vẫn được gọi với "back".
+         *  // ID: CA_0013
          */
         test('should handle error during add/update and redirect back', async () => {
             mockReq.cookies.cartId = "cart_id_error";
@@ -518,6 +531,7 @@ describe('Cart Controller', () => {
          * Kết quả mong đợi:
          * - Cart.updateOne được gọi để cập nhật số lượng của sản phẩm cụ thể.
          * - req.flash và res.redirect được gọi.
+         *  // ID: CA_0014
          */
         test('should update product quantity in cart and redirect back', async () => {
             mockReq.params.productId = "product_to_update_id";
@@ -549,6 +563,7 @@ describe('Cart Controller', () => {
          * Kết quả mong đợi:
          * - req.flash không được gọi với 'success'.
          * - res.redirect vẫn được gọi với "back".
+         *  // ID: CA_0015
          */
         test('should handle error during update and redirect back', async () => {
             mockReq.params.productId = "some_product";

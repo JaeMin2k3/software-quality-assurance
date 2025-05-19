@@ -75,6 +75,7 @@ describe('Home Controller - index method', () => {
      * - `productModel.find` được gọi với `{ deleted: false, status: "active", featured: "1" }`.
      * - `res.render` được gọi với `featuredProducts` là `[mockProcessedProduct1, mockProcessedProduct4]`.
      */
+    // ID: HO_001
     test('should fetch and process featured products correctly', async () => {
       const mockFeaturedRaw = [mockProductRaw1, mockProductRaw4];
       productModel.find.mockImplementationOnce(query => { // Mock cho featured products
@@ -116,6 +117,7 @@ describe('Home Controller - index method', () => {
      * - `latestProductsChain.limit` được gọi với `6`.
      * - `res.render` được gọi với `lastestProducts` là `[mockProcessedProduct2, mockProcessedProduct1]`.
      */
+    // ID: HO_002
     test('should fetch, sort, limit, and process latest products correctly', async () => {
       const mockLatestRaw = [mockProductRaw2, mockProductRaw1];
       const latestProductsChain = {
@@ -161,6 +163,7 @@ describe('Home Controller - index method', () => {
      * - `saleProductsChain.limit` được gọi với `6`.
      * - `res.render` được gọi với `saleProducts` là `[mockProcessedProduct3, mockProcessedProduct1]`.
      */
+    // ID: HO_003
     test('should fetch, sort, limit, and process sale products correctly', async () => {
       const mockSaleRaw = [mockProductRaw3, mockProductRaw1];
        const saleProductsChain = {
@@ -203,6 +206,7 @@ describe('Home Controller - index method', () => {
      * - `res.render` được gọi với `productCategorys` chứa dữ liệu mock.
      * - `createTreeHelper.tree` không được gọi.
      */
+    // ID: HO_004
     test('should fetch product categories correctly', async () => {
       const mockProductCategories = [mockProdCat1, { _id: 'cat2', title: 'Books', toObject: function() { return this; } }];
       productsCategoryModel.find.mockResolvedValue(mockProductCategories.map(c => ({...c})));
@@ -236,6 +240,7 @@ describe('Home Controller - index method', () => {
      * - `articalCategoryModel.find` được gọi với `{ deleted: false, status: "active" }`.
      * - `res.render` được gọi với `articalCategorys` chứa dữ liệu mock.
      */
+    // ID: HO_005
     test('should fetch article categories correctly', async () => {
       const mockArticleCategories = [mockArtCat1, { _id: 'artcat2', title: 'Tutorials', toObject: function() { return this; } }];
       articalCategoryModel.find.mockResolvedValue(mockArticleCategories.map(c => ({...c})));
@@ -274,6 +279,7 @@ describe('Home Controller - index method', () => {
      * - `articalCategorys`: `[mockArtCat1]`
      * - Các hàm `sort`, `limit` được gọi đúng.
      */
+    // ID: HO_006
     test('should render the home page with all data correctly when all fetches are successful', async () => {
       const mockFeaturedRaw = [mockProductRaw1];
       const mockLatestRaw = [mockProductRaw2];
@@ -338,6 +344,7 @@ describe('Home Controller - index method', () => {
      * - `productsCategoryModel.find` được gọi 1 lần.
      * - `articalCategoryModel.find` được gọi 1 lần.
      */
+    // ID: HO_007
     test('should render the home page with empty arrays if no data is found for any section', async () => {
       productModel.find.mockImplementation(query => {
         if (query.featured === "1") return Promise.resolve([]);

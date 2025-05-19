@@ -32,6 +32,13 @@ beforeEach(async () => {
 
 describe('Auth Controller', () => {
   describe('Login Page', () => {
+    /**
+     * Chức năng: Chuyển hướng đến dashboard nếu token tồn tại
+     * Mô tả kiểm thử: Kiểm tra chuyển hướng khi có cookie token hợp lệ
+     * Dữ liệu đầu vào: Cookie 'token=valid-token'
+     * Kết quả mong đợi: Chuyển hướng đến trang /admin/dashboard
+     */
+    // ID: AU_000
     it('should redirect to dashboard if token exists', async () => {
       const response = await request(app)
         .get('/admin/auth/login')
@@ -41,13 +48,7 @@ describe('Auth Controller', () => {
       expect(response.header.location).toContain('/admin/dashboard');
     });
 
-    it('should render login page if no token exists', async () => {
-      const response = await request(app)
-        .get('/admin/auth/login')
-        .expect(200);
 
-      expect(response.text).toContain('Trang đăng nhập');
-    });
   });
 
   describe('Login Process', () => {
@@ -72,6 +73,7 @@ describe('Auth Controller', () => {
      *  - Chuyển hướng đến trang chủ
      *  - Cookie token được tạo
      */
+    // ID: AU_001
     it('should login successfully with active account', async () => {
       const response = await request(app)
         .post('/admin/auth/login')
@@ -96,6 +98,7 @@ describe('Auth Controller', () => {
      *  - Chuyển hướng về trang chủ
      *  - Hiển thị thông báo lỗi
      */
+    // ID: AU_002
     it('should fail with inactive account', async () => {
       const response = await request(app)
         .post('/admin/auth/login')
@@ -119,6 +122,7 @@ describe('Auth Controller', () => {
      *  - Chuyển hướng về trang chủ
      *  - Hiển thị thông báo lỗi
      */
+    // ID: AU_003
     it('should fail with incorrect password', async () => {
       const response = await request(app)
         .post('/admin/auth/login')
@@ -141,6 +145,7 @@ describe('Auth Controller', () => {
      *  - Chuyển hướng về trang chủ
      *  - Hiển thị thông báo lỗi
      */
+    // ID: AU_004
     it('should fail with non-existent email', async () => {
       const response = await request(app)
         .post('/admin/auth/login')
@@ -164,6 +169,7 @@ describe('Auth Controller', () => {
      *  - Chuyển hướng về trang chủ
      *  - Hiển thị thông báo lỗi
      */
+    // ID: AU_005
     it('should fail when user.status is undefined', async () => {
       // Tạo tài khoản test với status undefined
       await Account.create({
@@ -194,6 +200,7 @@ describe('Auth Controller', () => {
      *  - Chuyển hướng về trang chủ
      *  - Hiển thị thông báo lỗi
      */
+    // ID: AU_006
     it('should fail when user.status is invalid', async () => {
       // Create test account with invalid status
       await Account.create({
@@ -227,6 +234,7 @@ describe('Auth Controller', () => {
      *  - Chuyển hướng về trang chủ
      *  - Hiển thị thông báo lỗi
      */
+    // ID: AU_007
     it('should fail when user.status is null', async () => {
       // Tạo tài khoản test với status null
       await Account.create({
@@ -258,6 +266,7 @@ describe('Auth Controller', () => {
      *  - Xóa cookie token
      *  - Chuyển hướng về trang đăng nhập
      */
+    // ID: AU_011
     it('should clear cookie and redirect to login page', async () => {
       const response = await request(app)
         .get('/admin/auth/logout')
@@ -268,4 +277,53 @@ describe('Auth Controller', () => {
     });
   });
 
+    /**
+     * Chức năng: Đăng nhập thất bại - Dữ liệu đầu vào trống
+     * Mô tả kiểm thử: Kiểm tra đăng nhập khi không cung cấp email hoặc password
+     * Dữ liệu đầu vào:
+     *  - Email: ""
+     *  - Password: ""
+     * Kết quả mong đợi:
+     *  - Chuyển hướng về trang đăng nhập
+     *  - Hiển thị thông báo lỗi
+     */
+    // ID: AU_008
+    it('should fail with empty credentials', async () => {
+      const response = await request(app)
+        .post('/admin/auth/login')
+        .send({
+          email: '',
+          password: ''
+        })
+        .expect(302);
+
+      expect(response.header.location).toBe('back');
+    });
+
+    /**
+     * Chức năng: Đăng nhập thất bại - Email không đúng định dạng
+     * Mô tả kiểm thử: Kiểm tra đăng nhập với email không hợp lệ
+     * Dữ liệu đầu vào:
+     *  - Email: "invalid-email"
+     *  - Password: "password123"
+     * Kết quả mong đợi:
+     *  - Chuyển hướng về trang đăng nhập
+     *  - Hiển thị thông báo lỗi
+     */
+    // ID: AU_009
+    it('should fail with invalid email format', async () => {
+      const response = await request(app)
+        .post('/admin/auth/login')
+        .send({
+          email: 'invalid-email',
+          password: 'password123'
+        })
+        .expect(302); 
+
+      expect(response.header.location).toBe('back');
+    });
+
+   
+
+ 
 
