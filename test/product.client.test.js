@@ -86,6 +86,7 @@ describe('Product Controller', () => {
   // --- Tests for module.exports.index ---
   describe('index - [GET] /products', () => {
     /**
+     * PC_001
      * @Chức năng: Hiển thị trang danh sách sản phẩm với các cài đặt mặc định khi không có sản phẩm nào (ngoại trừ sản phẩm sale).
      * @Mô tả kiểm thử:
      * - Người dùng truy cập trang sản phẩm mà không chọn bất kỳ bộ lọc hay sắp xếp nào.
@@ -132,6 +133,7 @@ describe('Product Controller', () => {
     });
 
     /**
+     * PC_002
      * @Chức năng: Lọc sản phẩm chỉ dựa trên thương hiệu.
      * @Mô tả kiểm thử:
      * - Người dùng chọn lọc sản phẩm theo một thương hiệu cụ thể (ví dụ: 'brand1').
@@ -162,6 +164,7 @@ describe('Product Controller', () => {
     });
 
     /**
+     * PC_003
      * @Chức năng: Sắp xếp sản phẩm chỉ dựa trên giá (tăng dần).
      * @Mô tả kiểm thử:
      * - Người dùng chọn sắp xếp sản phẩm theo giá tăng dần.
@@ -191,6 +194,7 @@ describe('Product Controller', () => {
     });
 
     /**
+     * PC_004
      * @Chức năng: Kết hợp lọc sản phẩm theo thương hiệu VÀ sắp xếp theo giá tăng dần.
      * @Mô tả kiểm thử:
      * - Người dùng chọn lọc theo thương hiệu 'brand1' và đồng thời sắp xếp theo giá tăng dần.
@@ -220,6 +224,7 @@ describe('Product Controller', () => {
 
 
     /**
+     * PC_005
      * @Chức năng: Lọc sản phẩm chỉ theo loại (type).
      * @Mô tả kiểm thử:
      * - Người dùng chọn lọc sản phẩm theo một loại cụ thể (ví dụ: 'Low-top', tương ứng index '0').
@@ -246,6 +251,7 @@ describe('Product Controller', () => {
     });
 
     /**
+     * PC_006
      * @Chức năng: Lọc sản phẩm chỉ theo khoảng giá chọn từ radio button (priceRadio).
      * @Mô tả kiểm thử:
      * - Người dùng chọn một khoảng giá từ các lựa chọn có sẵn (ví dụ: giá dưới 500,000, tương ứng index '0').
@@ -275,6 +281,7 @@ describe('Product Controller', () => {
     });
 
     /**
+     * PC_007
      * @Chức năng: Kết hợp lọc sản phẩm theo loại (type) VÀ khoảng giá (priceRadio).
      * @Mô tả kiểm thử:
      * - Người dùng chọn cả loại sản phẩm (ví dụ: 'High-top', index '2') và khoảng giá (ví dụ: dưới 3,000,000, index '3').
@@ -306,6 +313,7 @@ describe('Product Controller', () => {
     });
 
     /**
+     * PC_008
      * @Chức năng: Lọc sản phẩm theo khoảng giá nhập từ người dùng (priceInput).
      * @Mô tả kiểm thử:
      * - Người dùng nhập một khoảng giá cụ thể (ví dụ: từ 1,000,000 đến 2,000,000).
@@ -336,6 +344,7 @@ describe('Product Controller', () => {
     });
 
     /**
+     * PC_009
      * @Chức năng: Xử lý trường hợp người dùng nhập `priceInput` không hợp lệ (ví dụ: chỉ có một giá trị).
      * @Mô tả kiểm thử:
      * - Người dùng nhập `priceInput` thiếu một trong hai giới hạn giá (ví dụ: '1000000-').
@@ -358,6 +367,7 @@ describe('Product Controller', () => {
     });
 
     /**
+     * PC_010
      * @Chức năng: Xử lý trường hợp người dùng chọn một `type` không hợp lệ (ví dụ: chỉ số nằm ngoài phạm vi của danh sách loại sản phẩm).
      * @Mô tả kiểm thử:
      * - Người dùng cung cấp một chỉ số `type` không tồn tại (ví dụ: '10').
@@ -385,6 +395,7 @@ describe('Product Controller', () => {
   // --- Tests for module.exports.detail ---
   describe('detail - [GET] /products/detail/:slug', () => {
     /**
+     * PC_011
      * @Chức năng: Hiển thị trang chi tiết của một sản phẩm khi sản phẩm đó tồn tại và có thông tin danh mục liên quan.
      * @Mô tả kiểm thử:
      * - Người dùng truy cập vào đường dẫn chi tiết của một sản phẩm cụ thể (ví dụ: '/products/detail/product-1').
@@ -412,6 +423,7 @@ describe('Product Controller', () => {
     });
 
     /**
+     * PC_012
      * @Chức năng: Hiển thị trang chi tiết của một sản phẩm khi sản phẩm đó tồn tại nhưng không có thông tin danh mục (không có `category_id`).
      * @Mô tả kiểm thử:
      * - Người dùng truy cập vào đường dẫn chi tiết của một sản phẩm (ví dụ: '/products/detail/product-no-cat').
@@ -436,6 +448,7 @@ describe('Product Controller', () => {
     });
 
     /**
+     * PC_013
      * @Chức năng: Chuyển hướng người dùng về trang danh sách sản phẩm nếu sản phẩm không được tìm thấy.
      * @Mô tả kiểm thử:
      * - Người dùng truy cập vào đường dẫn chi tiết của một sản phẩm không tồn tại (ví dụ: '/products/detail/non-existent-product').
@@ -454,6 +467,7 @@ describe('Product Controller', () => {
     });
 
     /**
+     * PC_014
      * @Chức năng: Xử lý lỗi và chuyển hướng khi có sự cố lúc tìm kiếm sản phẩm trong cơ sở dữ liệu.
      * @Mô tả kiểm thử:
      * - Người dùng truy cập trang chi tiết sản phẩm.
@@ -476,6 +490,7 @@ describe('Product Controller', () => {
   });
 
     /**
+     * PC_015
      * @Chức năng: Xử lý lỗi và chuyển hướng khi có sự cố lúc tìm kiếm danh mục của sản phẩm.
      * @Mô tả kiểm thử:
      * - Người dùng truy cập trang chi tiết sản phẩm.
@@ -499,6 +514,7 @@ describe('Product Controller', () => {
   // --- Tests for module.exports.productOfCategory ---
   describe('productOfCategory - [GET] /products/:slugCategory', () => {
     /**
+     * PC_016
      * @Chức năng: Hiển thị danh sách sản phẩm thuộc một danh mục cụ thể (không có danh mục con và không có bộ lọc nào được áp dụng).
      * @Mô tả kiểm thử:
      * - Người dùng truy cập vào trang của một danh mục (ví dụ: '/products/category-1').
@@ -553,6 +569,7 @@ describe('Product Controller', () => {
     });
 
     /**
+     * PC_017
      * @Chức năng: Hiển thị sản phẩm của một danh mục cha, bao gồm cả sản phẩm từ các danh mục con, và áp dụng bộ lọc theo thương hiệu.
      * @Mô tả kiểm thử:
      * - Người dùng truy cập trang của một danh mục cha (ví dụ: '/products/parent-cat').
@@ -597,6 +614,7 @@ describe('Product Controller', () => {
     });
 
     /**
+     * PC_018
      * @Chức năng: Xử lý trường hợp không tìm thấy danh mục sản phẩm (slug không tồn tại).
      * @Mô tả kiểm thử:
      * - Người dùng truy cập trang của một danh mục với slug không tồn tại (ví dụ: '/products/non-existent-cat').
@@ -618,6 +636,7 @@ describe('Product Controller', () => {
     });
 
     /**
+     * PC_019
      * @Chức năng: Xử lý lỗi khi hàm helper `CategoryHelper.getSubCategory` gặp sự cố.
      * @Mô tả kiểm thử:
      * - Người dùng truy cập trang của một danh mục.
@@ -640,6 +659,7 @@ describe('Product Controller', () => {
     });
 
     /**
+     * PC_020
      * @Chức năng: Xử lý `priceInput` không hợp lệ (ví dụ: chỉ một giá trị) trong trang danh mục sản phẩm.
      * @Mô tả kiểm thử:
      * - Người dùng truy cập trang của một danh mục và nhập `priceInput` thiếu một giới hạn giá (ví dụ: '1000000-').

@@ -49,6 +49,7 @@ describe('Search Controller', () => {
   // --- Tests for module.exports.index ---
   describe('index - [GET] /search', () => {
     /**
+     * SE_001
      * @Chức năng: Hiển thị trang tìm kiếm khi người dùng cung cấp từ khóa và có sản phẩm khớp.
      * @Mô tả kiểm thử:
      * - Người dùng nhập một từ khóa vào ô tìm kiếm (ví dụ: "Shoe").
@@ -90,6 +91,7 @@ describe('Search Controller', () => {
     });
 
     /**
+     * SE_002
      * @Chức năng: Hiển thị trang tìm kiếm khi người dùng cung cấp từ khóa nhưng không có sản phẩm nào khớp.
      * @Mô tả kiểm thử:
      * - Người dùng nhập một từ khóa (ví dụ: "NonExistent").
@@ -124,6 +126,7 @@ describe('Search Controller', () => {
     });
 
     /**
+     * SE_003
      * @Chức năng: Hiển thị trang tìm kiếm khi người dùng không cung cấp từ khóa.
      * @Mô tả kiểm thử:
      * - Người dùng truy cập trang tìm kiếm mà không nhập từ khóa nào (ô tìm kiếm rỗng).
@@ -151,6 +154,7 @@ describe('Search Controller', () => {
       });
     });
   /**
+   * SE_004
      * @Chức năng: Hiển thị trang tìm kiếm khi người dùng cung cấp từ khóa là một chuỗi rỗng.
      * @Mô tả kiểm thử:
      * - Người dùng nhập một chuỗi rỗng ("") vào ô tìm kiếm.
@@ -190,6 +194,7 @@ describe('Search Controller', () => {
     });
 
     /**
+     * SE_005
      * @Chức năng: Kiểm tra tìm kiếm không phân biệt hoa thường.
      * @Mô tả kiểm thử:
      * - Người dùng nhập từ khóa "rEd" (kết hợp hoa thường).
@@ -227,6 +232,7 @@ describe('Search Controller', () => {
     });
 
     /**
+     * SE_006
      * @Chức năng: Xử lý trường hợp sản phẩm tìm thấy bị thiếu thuộc tính `price` để tính `newPrice`.
      * @Mô tả kiểm thử:
      * - Người dùng tìm kiếm và cơ sở dữ liệu trả về một sản phẩm, nhưng sản phẩm này không có trường `price`.
@@ -264,6 +270,7 @@ describe('Search Controller', () => {
     });
 
     /**
+     * SE_007
      * @Chức năng: Xử lý trường hợp sản phẩm tìm thấy bị thiếu thuộc tính `discountPercentage`.
      * @Mô tả kiểm thử:
      * - Người dùng tìm kiếm và cơ sở dữ liệu trả về một sản phẩm, nhưng sản phẩm này không có trường `discountPercentage`.
@@ -302,6 +309,7 @@ describe('Search Controller', () => {
     });
 
     /**
+     * SE_008
      * @Chức năng: Kiểm tra lỗi khi một trong các sản phẩm trả về từ cơ sở dữ liệu là `null`.
      * @Mô tả kiểm thử:
      * - Người dùng tìm kiếm.

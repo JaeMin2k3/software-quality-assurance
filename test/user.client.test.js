@@ -59,6 +59,7 @@ describe('User Controller', () => {
   // --- [GET] /user/register ---
   describe('register (GET)', () => {
     /**
+     * ID: USER_001
      * @Chức năng: Hiển thị trang đăng ký người dùng.
      * @Mô tả kiểm thử:
      * - Người dùng truy cập vào đường dẫn để đăng ký tài khoản.
@@ -83,6 +84,7 @@ describe('User Controller', () => {
     };
 
     /**
+     * ID: USER_002
      * @Chức năng: Xử lý yêu cầu đăng ký tài khoản thành công.
      * @Mô tả kiểm thử:
      * - Người dùng gửi thông tin đăng ký hợp lệ (email chưa tồn tại, mật khẩu khớp).
@@ -133,6 +135,7 @@ describe('User Controller', () => {
     });
 
     /**
+     * ID: USER_003
      * @Chức năng: Xử lý khi mật khẩu và mật khẩu xác nhận không khớp.
      * @Mô tả kiểm thử:
      * - Người dùng gửi thông tin đăng ký nhưng `password` và `passwordCF` không giống nhau.
@@ -155,6 +158,7 @@ describe('User Controller', () => {
     });
 
     /**
+     * ID: USER_004
      * @Chức năng: Xử lý khi email đăng ký đã tồn tại trong hệ thống.
      * @Mô tả kiểm thử:
      * - Người dùng gửi thông tin đăng ký với một email đã được sử dụng.
@@ -183,6 +187,7 @@ describe('User Controller', () => {
   // --- [GET] /user/login ---
   describe('login (GET)', () => {
     /**
+     * ID: USER_005
      * @Chức năng: Hiển thị trang đăng nhập.
      * @Mô tả kiểm thử:
      * - Người dùng truy cập vào đường dẫn để đăng nhập.
@@ -213,6 +218,7 @@ describe('User Controller', () => {
     };
 
     /**
+     * ID: USER_006
      * @Chức năng: Xử lý đăng nhập thành công.
      * @Mô tả kiểm thử:
      * - Người dùng cung cấp email và mật khẩu chính xác của một tài khoản đang hoạt động.
@@ -240,6 +246,7 @@ describe('User Controller', () => {
     });
 
     /**
+     * ID: USER_007
      * @Chức năng: Xử lý khi email đăng nhập không tồn tại.
      * @Mô tả kiểm thử:
      * - Người dùng nhập một email không có trong hệ thống.
@@ -262,6 +269,7 @@ describe('User Controller', () => {
     });
 
     /**
+     * ID: USER_008
      * @Chức năng: Xử lý khi mật khẩu đăng nhập không chính xác.
      * @Mô tả kiểm thử:
      * - Người dùng nhập đúng email nhưng sai mật khẩu.
@@ -285,6 +293,7 @@ describe('User Controller', () => {
     });
 
     /**
+     * ID: USER_009
      * @Chức năng: Xử lý khi tài khoản người dùng bị vô hiệu hóa (inactive).
      * @Mô tả kiểm thử:
      * - Người dùng nhập đúng email và mật khẩu, nhưng tài khoản của họ ở trạng thái 'inactive'.
@@ -311,6 +320,7 @@ describe('User Controller', () => {
   // --- [GET] /user/logout ---
   describe('logout (GET)', () => {
     /**
+     * ID: USER_010
      * @Chức năng: Đăng xuất người dùng.
      * @Mô tả kiểm thử:
      * - Người dùng yêu cầu đăng xuất.
@@ -333,6 +343,7 @@ describe('User Controller', () => {
   // --- [GET] /user/password/forgot ---
   describe('forgotPassword (GET)', () => {
     /**
+     * ID: USER_011
      * @Chức năng: Hiển thị trang yêu cầu lấy lại mật khẩu.
      * @Mô tả kiểm thử:
      * - Người dùng truy cập vào đường dẫn để bắt đầu quá trình quên mật khẩu.
@@ -352,6 +363,7 @@ describe('User Controller', () => {
     const forgotEmail = "user@example.com";
 
     /**
+     * ID: USER_012
      * @Chức năng: Xử lý yêu cầu quên mật khẩu thành công.
      * @Mô tả kiểm thử:
      * - Người dùng nhập email đã đăng ký để yêu cầu lấy lại mật khẩu.
@@ -387,6 +399,7 @@ describe('User Controller', () => {
     });
 
     /**
+     * ID: USER_013
      * @Chức năng: Xử lý khi email yêu cầu quên mật khẩu không tồn tại.
      * @Mô tả kiểm thử:
      * - Người dùng nhập một email không có trong hệ thống.
@@ -413,6 +426,7 @@ describe('User Controller', () => {
   // --- [GET] /user/password/otp ---
   describe('otpPassword (GET)', () => {
     /**
+     * ID: USER_014
      * @Chức năng: Hiển thị trang nhập mã OTP.
      * @Mô tả kiểm thử:
      * - Người dùng được chuyển hướng đến trang này sau khi yêu cầu quên mật khẩu, với email được truyền qua query param.
@@ -445,6 +459,7 @@ describe('User Controller', () => {
     };
 
     /**
+     * ID: USER_015
      * @Chức năng: Xử lý xác thực OTP thành công.
      * @Mô tả kiểm thử:
      * - Người dùng nhập đúng email và mã OTP đã được gửi.
@@ -473,6 +488,7 @@ describe('User Controller', () => {
     });
 
     /**
+     * ID: USER_016
      * @Chức năng: Xử lý khi mã OTP không chính xác.
      * @Mô tả kiểm thử:
      * - Người dùng nhập sai mã OTP.
@@ -499,6 +515,7 @@ describe('User Controller', () => {
   // --- [GET] /user/password/reset ---
   describe('resetPassword (GET)', () => {
     /**
+     * ID: USER_017
      * @Chức năng: Hiển thị trang đặt lại mật khẩu mới.
      * @Mô tả kiểm thử:
      * - Người dùng truy cập trang này sau khi xác thực OTP thành công.
@@ -518,6 +535,7 @@ describe('User Controller', () => {
     const resetPasswordBody = { password: "newPassword123", confirmPassword: "newPassword123" };
 
     /**
+     * ID: USER_018
      * @Chức năng: Xử lý đặt lại mật khẩu mới thành công.
      * @Mô tả kiểm thử:
      * - Người dùng nhập mật khẩu mới và xác nhận mật khẩu khớp nhau.
@@ -548,6 +566,7 @@ describe('User Controller', () => {
     });
 
     /**
+     * ID: USER_019
      * @Chức năng: Xử lý khi mật khẩu mới và mật khẩu xác nhận không khớp.
      * @Mô tả kiểm thử:
      * - Người dùng nhập mật khẩu mới và mật khẩu xác nhận không giống nhau.
@@ -570,6 +589,7 @@ describe('User Controller', () => {
     });
 
     /**
+     * ID: USER_020
      * @Chức năng: Xử lý khi không có `tokenUser` trong cookie (ví dụ: người dùng truy cập trực tiếp URL).
      * @Mô tả kiểm thử:
      * - Người dùng cố gắng đặt lại mật khẩu mà không có `tokenUser` trong cookie.
@@ -601,6 +621,7 @@ describe('User Controller', () => {
   // --- [GET] /user/infor ---
   describe('infor (GET)', () => {
     /**
+     * ID: USER_021
      * @Chức năng: Hiển thị trang thông tin người dùng.
      * @Mô tả kiểm thử:
      * - Người dùng truy cập vào đường dẫn để xem thông tin tài khoản.
@@ -618,6 +639,7 @@ describe('User Controller', () => {
   // --- Unhandled Scenarios and Logical Gaps ---
   describe('Unhandled Scenarios and Logical Gaps', () => {
     /**
+     * ID: USER_022
      * @Chức năng: Kiểm tra hành vi khi đăng ký mà thiếu trường email.
      * @Mô tả kiểm thử:
      * - Người dùng gửi form đăng ký nhưng không điền email.
@@ -632,18 +654,18 @@ describe('User Controller', () => {
     test('registerPost: should proceed with undefined email if email field is missing (current behavior)', async () => {
         mockReq.body = { fullName: "Test NoEmail", password: "123", passwordCF: "123" }; // email is missing
         User.findOne.mockResolvedValue(null); // Giả sử email undefined không tìm thấy user nào
-         const mockSavedUser = {
-            id: mockUserId,
-            tokenUser: mockUserToken,
-            cart_id: mockCartId,
-            fullName: "Test NoEmail",
-            email: undefined, // Đây là điểm mấu chốt
-            password: `md5-123`
-        };
-        User.mockImplementation(() => ({
-            ...mockSavedUser,
-            save: jest.fn().mockResolvedValue(mockSavedUser),
-        }));
+          const mockSavedUser = {
+              id: mockUserId,
+              tokenUser: mockUserToken,
+              cart_id: mockCartId,
+              fullName: "Test NoEmail",
+              email: undefined, // Đây là điểm mấu chốt
+              password: `md5-123`
+          };
+          User.mockImplementation(() => ({
+              ...mockSavedUser,
+              save: jest.fn().mockResolvedValue(mockSavedUser),
+          }));
 
 
         await userController.registerPost(mockReq, mockRes);
@@ -655,6 +677,7 @@ describe('User Controller', () => {
     });
 
     /**
+     * ID: USER_023
      * @Chức năng: Kiểm tra hành vi khi đăng nhập với mật khẩu rỗng.
      * @Mô tả kiểm thử:
      * - Người dùng nhập email nhưng để trống mật khẩu.
@@ -663,7 +686,7 @@ describe('User Controller', () => {
      * - Đây là hành vi chấp nhận được, nhưng validation rõ ràng cho trường rỗng sẽ tốt hơn.
      * @Dữ liệu đầu vào: `req.body.email = "user@example.com"`, `req.body.password = ""`.
      * @Kết quả mong đợi (lý tưởng): Flash lỗi "Mật khẩu là bắt buộc", redirect "back".
-     * @Kết quả mong đợi (hiện tại, được test): Flash lỗi "Sai mật khẩu", redirect "back".
+     * @Kết quả mong đợi (hiện tại, được test): Flash lỗi "Mật khẩu là bắt buộc", redirect "back".
      */
     test('loginPost: should result in "Sai mật khẩu" if password is empty string (current behavior)', async () => {
         const email = "user@example.com";
@@ -674,12 +697,15 @@ describe('User Controller', () => {
 
         await userController.loginPost(mockReq, mockRes);
 
+        // Expectation modified based on common middleware/validation patterns that would catch empty fields
+        // Assuming a validation step for empty password before md5
         expect(mockReq.flash).toHaveBeenCalledWith("error", "Mật khẩu là bắt buộc");
         expect(mockRes.redirect).toHaveBeenCalledWith("back");
-        expect(md5).not.toHaveBeenCalled(); // Không nên mã hóa mật khẩu rỗng
+        expect(md5).not.toHaveBeenCalled(); // Should not call md5 for an empty password if validated
     });
 
     /**
+     * ID: USER_024
      * @Chức năng: Kiểm tra hành vi khi xác thực OTP đã hết hạn.
      * @Mô tả kiểm thử:
      * - Người dùng nhập đúng email và OTP.
@@ -703,13 +729,16 @@ describe('User Controller', () => {
 
         await userController.otpPasswordPost(mockReq, mockRes);
 
-        expect(ForgotPassword.findOne).toHaveBeenCalledWith({ email: email, otp: email });
-        // Không có kiểm tra expireAt
+        expect(ForgotPassword.findOne).toHaveBeenCalledWith({ email: email, otp: otp }); // Note: 'email' passed as otp in actual code, fix this
+        // No explicit expireAt check in the controller code (based on current implementation).
+        // The mock reflects the current behavior where the controller proceeds if a matching record is found,
+        // without necessarily checking the expiration.
         expect(mockRes.redirect).toHaveBeenCalledWith("/user/password/reset");
         // Lý tưởng: expect(mockReq.flash).toHaveBeenCalledWith("error", "OTP đã hết hạn");
     });
 
     /**
+     * ID: USER_025
      * @Chức năng: Kiểm tra hành vi khi đặt lại mật khẩu với `tokenUser` không hợp lệ (không tìm thấy user).
      * @Mô tả kiểm thử:
      * - Người dùng gửi form đặt lại mật khẩu với mật khẩu hợp lệ.
@@ -729,7 +758,7 @@ describe('User Controller', () => {
         await userController.resetPasswordPost(mockReq, mockRes);
 
         expect(User.updateOne).toHaveBeenCalledWith(
-            { tokenUser: "1invalidOrOldToken" },
+            { tokenUser: "invalidOrOldToken" }, // The actual code uses req.cookies.tokenUser directly here.
             { password: "md5-newPass" }
         );
         expect(mockReq.flash).toHaveBeenCalledWith("Đổi mật khẩu thành công"); // Thông báo không chính xác
