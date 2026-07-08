@@ -35,7 +35,7 @@ Dự án áp dụng chiến lược kiểm thử đa cấp độ để phát hi�
 * Hệ thống phản hồi ổn định với 100 người dùng đồng thời, không xuất hiện lỗi HTTP 500 trong quá trình chạy kiểm thử hiệu năng bằng JMeter.
 
 ### 4. Tài liệu đính kèm (Documentation Links)
-* [System test](link_den_file_SQA_plan_cua_ban)
+* [System test](https://docs.google.com/spreadsheets/d/1zn3at-bboIRiEwk0cm3-hrhDkNtjR95d-AbDF35DqXw/edit?usp=sharing)
 * [Unit test]
 * [Jmester]
 * [Selenium]
