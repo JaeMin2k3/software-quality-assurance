@@ -1,51 +1,41 @@
-# Products Management System
+* [Kế hoạch Kiểm thử Phần mềm - SQA Plan](## Kiểm thử phần mềm (Software Quality Assurance - SQA)
 
-## Giới thiệu
+Dự án áp dụng chiến lược kiểm thử đa cấp độ để phát hiện lỗi sớm, xác thực các luồng chức năng từ đầu đến cuối và đảm bảo hiệu suất của hệ thống.
 
- Products Management System là một ứng dụng web dùng để quản lý thông tin sản phẩm, danh mục và bài viết. <br>Dự án áp dụng phương pháp Server-side Rendering (SSR) và gồm hai phần chính:<br>
- Admin: Quản trị viên có thể thêm, chỉnh sửa, xóa sản phẩm, danh mục, bài viết và quản lý quyền người dùng.<br>
- Client: Khách hàng có thể tìm kiếm, đặt hàng, yêu cầu đặt lại mật khẩu, xác thực và đăng ký tài khoản.
+### 1. Chiến lược và Công cụ Kiểm thử
 
-![Trang Admin](./images/trangchu.png)
+* **Kiểm thử Unit (Unit Testing):** Sử dụng Jest để kiểm tra tính đúng đắn của các hàm trong backend controller và xác thực đầu vào. Quá trình này bao gồm các bước kiểm tra cơ sở dữ liệu và rollback để đảm bảo tính toàn vẹn dữ liệu.
+* **Kiểm thử Giao diện và Hệ thống (System/UI Testing):** Sử dụng Selenium WebDriver để kiểm thử tự động các luồng thao tác của người dùng trên UI (nhấp chuột, chuyển hướng, xác thực). Kết hợp với kiểm thử thủ công theo các kịch bản thực tế đã được chuẩn bị sẵn.
+* **Kiểm thử API (API Functional Test):** Sử dụng Postman để kiểm tra thủ công các endpoint của REST API (đăng nhập, giỏ hàng, đơn hàng), đảm bảo hệ thống trả về đúng mã trạng thái HTTP và dữ liệu.
+* **Kiểm thử Hiệu năng (Performance Testing):** Sử dụng Apache JMeter để đánh giá thời gian phản hồi của hệ thống dưới tải.
 
-## Chức năng chính
-Quản lý sản phẩm, danh mục, bài viết<br>
-Phân quyền người dùng<br>
-Lọc và tìm kiếm đơn hàng<br>
-Đặt hàng và quản lý đơn hàng<br>
-Xác thực và đăng ký tài khoản<br>
-Yêu cầu đặt lại mật khẩu
+### 2. Các chức năng đã được kiểm thử
 
-## Cài đặt và sử dụng
-Yêu cầu hệ thống<br>
-Node.js v16+<br>
-MongoDB Atlas hoặc cấu hình cơ sở dữ liệu MongoDB cụ thể
+Đội ngũ kiểm thử đã thực hiện phân công và kiểm tra chi tiết các module chức năng sau của hệ thống:
 
-## Cách chạy dự án
-git clone https://github.com/ThanhBQ1415/Products-Management-System.git<br>
-cd Products-Management-System
+**Dành cho Khách hàng (User/Cart Modules):**
+* **Tài khoản & Xem sản phẩm:** Đăng nhập / Đăng ký tài khoản, Xem chi tiết sản phẩm, Tìm kiếm sản phẩm, Sắp xếp sản phẩm.
+* **Giỏ hàng & Thanh toán:** Thêm sản phẩm vào giỏ, Chỉnh sửa / Xóa sản phẩm trong giỏ hàng, Tiến hành đặt hàng.
 
-## Cài đặt dependencies
-npm install
+**Dành cho Quản trị viên (Admin/Product Modules):**
+* **Tài khoản Admin:** Đăng nhập quyền Admin, Tạo tài khoản người dùng, Cập nhật thông tin cá nhân của Admin.
+* **Quản lý Sản phẩm:**
+    * Thêm sản phẩm mới.
+    * Chỉnh sửa thông tin sản phẩm.
+    * Xóa sản phẩm.
+    * Xem danh sách các sản phẩm đã xóa.
+    * Khôi phục sản phẩm đã xóa.
+    * Tìm kiếm và Sắp xếp sản phẩm (Giao diện Admin).
+    * Xem chi tiết sản phẩm (Giao diện Admin).
 
-## Cấu hình biến môi trường
-Tạo file .env và thêm thông tin cần thiết:<br>
-MONGO_URI=your_mongodb_connection_string<br>
-PORT=5000<br>
-JWT_SECRET=your_jwt_secret
+### 3. Tiêu chuẩn Chất lượng Đạt được
 
-## Database
-![Trang Admin](./images/db.png)
+* Tỷ lệ vượt qua các kịch bản kiểm thử (Test case pass rate) đạt từ 90% trở lên, không có lỗi nghiêm trọng (critical defects).
+* Độ phủ mã nguồn (Code coverage) đạt tối thiểu 70%.
+* Hệ thống phản hồi ổn định với 100 người dùng đồng thời, không xuất hiện lỗi HTTP 500 trong quá trình chạy kiểm thử hiệu năng bằng JMeter.
 
-## Chạy server
-npm start<br>
-Truy cập trang web<br>
-Mở trình duyệt và truy cập: http://localhost:3000
-
-## Công nghệ sử dụng
-Backend: Node.js, Express, MongoDB<br>
-Frontend: React, Next.js (nếu dự án dùng SSR)<br>
-Xác thực: JSON Web Token (JWT)<br>
-Triển khai: Vercel 
-
-
+### 4. Tài liệu đính kèm (Documentation Links)
+* [System test](link_den_file_SQA_plan_cua_ban)
+* [Unit test]
+* [Jmester]
+* [Selenium]
