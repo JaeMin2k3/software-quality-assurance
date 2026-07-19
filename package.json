@@ -6,7 +6,8 @@
   "type": "commonjs",
   "scripts": {
     "start": "nodemon --inspect index.js",
-    "test": "jest"
+    "test": "jest",
+    "test:accounts": "jest --coverage --collectCoverageFrom=controllers/admin/accounts.controller.js test/accoutnController.test.js"
   },
   "author": "",
   "license": "ISC",

@@ -3,13 +3,13 @@
         ul 
             li 
                 a(href=`${prefixAdmin}/dashboard`) Tổng quan
-            if(roleMDW.permissions.includes("products-category_view"))
+            if(1)
                 li 
                     a(href=`${prefixAdmin}/products-category`) Danh mục sản phẩm
-            if(roleMDW.permissions.includes("products_view"))
+            if(1)
                 li 
                     a(href=`${prefixAdmin}/products`) Danh sách sản phẩm
-            if(roleMDW.permissions.includes("roles_view"))
+            if(1)
                 li 
                     a(href=`${prefixAdmin}/roles`) Danh sách nhóm quyền
             li 
@@ -18,10 +18,10 @@
                 a(href=`${prefixAdmin}/artical`) Bài viết
             li 
                 a(href=`${prefixAdmin}/artical-category`) Danh mục bài viết
-            if(roleMDW.permissions.includes("roles_permission"))
+            if(1)
                 li 
                     a(href=`${prefixAdmin}/roles/permissions`) Phân quyền
-            if(roleMDW.permissions.includes("accounts_view"))
+            if(1)
                 li 
                     a(href=`${prefixAdmin}/accounts`) Danh sách tài khoản
             

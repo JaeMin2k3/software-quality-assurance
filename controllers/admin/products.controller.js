@@ -156,6 +156,18 @@ module.exports.deleteItem = async (req,res) => {
 
     res.redirect('back')
 }
+
+
+
+
+
+
+
+
+
+
+
+
 // [GET] /admin/products/create
 module.exports.create = async (req,res) =>{
     let find ={

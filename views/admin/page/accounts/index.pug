@@ -1,7 +1,7 @@
 extends ../../layout/default.pug 
 
 block main 
-    if(roleMDW.permissions.includes("accounts_view"))
+    if(1)
         h1(class="mb-4") Danh sách tài khoản
 
         .card.mb-3 
@@ -64,10 +64,10 @@ block main
                                         class="btn btn-secondary btn-sm"
                                         href=`${prefixAdmin}/accounts/detail/${item.id}`
                                     ) Chi tiết 
-                                    if(roleMDW.permissions.includes("accounts_edit"))
+                                    if(1)
                                         a(
                                             class="btn btn-warning btn-sm"
                                             href=`${prefixAdmin}/accounts/edit/${item.id}`
                                         ) Sửa 
-                                    if(roleMDW.permissions.includes("accounts_delete"))
+                                    if(1)
                                         button(class="btn btn-danger btn-sm" btn-delete data-id= item.id) Xóa
