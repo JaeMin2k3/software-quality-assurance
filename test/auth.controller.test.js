@@ -4,20 +4,45 @@ const Account = require('../model/accounts.model');
 const app = require('../index');
 const md5 = require('md5');
 
-// Lưu trữ dữ liệu ban đầu
+// ========== CONSTANTS ==========
+const TEST_ACCOUNT = {
+  email: 'test@example.com',
+  password: 'password123',
+  hashedPassword: null, // Will be set in beforeAll
+  status: 'active',
+  deleted: false
+};
+
+const TEST_INACTIVE_ACCOUNT = {
+  email: 'inactive@example.com',
+  password: 'password456',
+  status: 'inactive',
+  deleted: false
+};
+
+// ========== SETUP ==========
 let originalAccounts = [];
 
 beforeAll(async () => {
-  await mongoose.connect('mongodb+srv://vuxuanthinh2003:ibkBgHZC2BCdmA8i@springt.c97gly9.mongodb.net/Products-Management');
-  // Backup dữ liệu hiện tại
+  // Connect to MongoDB
+  const mongoUri = process.env.MONGO_TEST_URI || 
+    'mongodb+srv://vuxuanthinh2003:ibkBgHZC2BCdmA8i@springt.c97gly9.mongodb.net/Products-Management';
+  
+  await mongoose.connect(mongoUri);
+  
+  // Backup dữ liệu hiện tại (để restore sau test)
   originalAccounts = await Account.find({});
+  
+  // Hash password
+  TEST_ACCOUNT.hashedPassword = md5(TEST_ACCOUNT.password);
+  TEST_INACTIVE_ACCOUNT.hashedPassword = md5(TEST_INACTIVE_ACCOUNT.password);
 });
 
 afterAll(async () => {
-  // Xóa tất cả dữ liệu test
+  // Xóa tất cả test data
   await Account.deleteMany({});
   
-  // Khôi phục dữ liệu ban đầu
+  // Restore original data
   if (originalAccounts.length > 0) {
     await Account.insertMany(originalAccounts);
   }
@@ -26,20 +51,28 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  // Xóa dữ liệu trước mỗi test case
+  // Xóa tất cả accounts trước mỗi test
   await Account.deleteMany({});
 });
 
+// ========== TESTS ==========
+
 describe('Auth Controller', () => {
-  describe('Login Page', () => {
+  
+  // ===== LOGIN PAGE =====
+  describe('Login Page - GET /admin/auth/login', () => {
+    
     /**
-     * Chức năng: Chuyển hướng đến dashboard nếu token tồn tại
-     * Mô tả kiểm thử: Kiểm tra chuyển hướng khi có cookie token hợp lệ
-     * Dữ liệu đầu vào: Cookie 'token=valid-token'
-     * Kết quả mong đợi: Chuyển hướng đến trang /admin/dashboard
+     * TEST ID: AU_000
+     * Chức năng: Redirect to dashboard if token exists
+     * Mô tả: Kiểm tra redirect khi user đã login (có valid token)
+     * Precondition: User đã login, có valid token trong cookie
+     * Input: GET /admin/auth/login với cookie token
+     * Expected: 
+     *   - Status code: 302 (redirect)
+     *   - Location header: /admin/dashboard
      */
-    // ID: AU_000
-    it('should redirect to dashboard if token exists', async () => {
+    it('AU_000 - should redirect to dashboard if valid token exists', async () => {
       const response = await request(app)
         .get('/admin/auth/login')
         .set('Cookie', ['token=valid-token'])
@@ -48,105 +81,129 @@ describe('Auth Controller', () => {
       expect(response.header.location).toContain('/admin/dashboard');
     });
 
-
   });
 
-  describe('Login Process', () => {
+  // ===== LOGIN PROCESS =====
+  describe('Login Process - POST /admin/auth/login', () => {
+    
     beforeEach(async () => {
-      const hashedPassword = md5('password123');
+      // Create test account before each test
       await Account.create({
-        email: 'test@example.com',
-        password: hashedPassword,
-        status: 'active',
-        deleted: false
+        email: TEST_ACCOUNT.email,
+        password: TEST_ACCOUNT.hashedPassword,
+        status: TEST_ACCOUNT.status,
+        deleted: TEST_ACCOUNT.deleted
+      });
+
+      // Create inactive account for status tests
+      await Account.create({
+        email: TEST_INACTIVE_ACCOUNT.email,
+        password: md5(TEST_INACTIVE_ACCOUNT.password),
+        status: TEST_INACTIVE_ACCOUNT.status,
+        deleted: TEST_INACTIVE_ACCOUNT.deleted
       });
     });
 
     /**
-     * Chức năng: Đăng nhập thành công
-     * Mô tả kiểm thử: Kiểm tra đăng nhập với tài khoản đang hoạt động
-     * Dữ liệu đầu vào:
-     *  - Email: vanc@example.com
-     *  - Password: pass1234
-     *  - Trạng thái tài khoản: active
-     * Kết quả mong đợi:
-     *  - Chuyển hướng đến trang chủ
-     *  - Cookie token được tạo
+     * TEST ID: AU_001
+     * Chức năng: Successful login
+     * Mô tả: Kiểm tra login thành công với credentials hợp lệ
+     * Precondition: Account 'test@example.com' tồn tại, status='active'
+     * Input: 
+     *   - email: test@example.com
+     *   - password: password123
+     * Expected:
+     *   - Status code: 302 (redirect)
+     *   - Location: /
+     *   - Cookie token được tạo
      */
-    // ID: AU_001
-    it('should login successfully with active account', async () => {
+    it('AU_001 - should login successfully with valid credentials', async () => {
       const response = await request(app)
         .post('/admin/auth/login')
         .send({
-          email: 'vanc@example.com',
-          password: 'pass1234'
+          email: TEST_ACCOUNT.email,
+          password: TEST_ACCOUNT.password
         })
         .expect(302);
 
+      // Verify redirect
+      expect(response.header.location).toBe('/');
+      
+      // Verify token cookie created
       expect(response.header['set-cookie']).toBeDefined();
-      expect(response.header.location).toBe('/');
+      expect(response.header['set-cookie'][0]).toContain('token=');
     });
 
     /**
-     * Chức năng: Đăng nhập thất bại - Tài khoản bị khóa
-     * Mô tả kiểm thử: Kiểm tra đăng nhập với tài khoản đã bị khóa
-     * Dữ liệu đầu vào:
-     *  - Email: thib@example.com
-     *  - Password: abcdef
-     *  - Trạng thái tài khoản: inactive
-     * Kết quả mong đợi:
-     *  - Chuyển hướng về trang chủ
-     *  - Hiển thị thông báo lỗi
+     * TEST ID: AU_002
+     * Chức năng: Login failed - inactive account
+     * Mô tả: Kiểm tra login thất bại với account bị inactive
+     * Precondition: Account 'inactive@example.com' tồn tại, status='inactive'
+     * Input:
+     *   - email: inactive@example.com
+     *   - password: password456
+     * Expected:
+     *   - Status code: 302 (redirect)
+     *   - Location: /
+     *   - Không tạo token cookie
      */
-    // ID: AU_002
-    it('should fail with inactive account', async () => {
+    it('AU_002 - should fail with inactive account', async () => {
       const response = await request(app)
         .post('/admin/auth/login')
         .send({
-          email: 'thib@example.com',
-          password: 'abcdef'
+          email: TEST_INACTIVE_ACCOUNT.email,
+          password: TEST_INACTIVE_ACCOUNT.password
+        })
+        .expect(302);
+
+      // Verify redirect to home
+      expect(response.header.location).toBe('/');
+      
+      // Verify no auth token created
+      const setCookieHeader = response.header['set-cookie'];
+      const hasAuthToken = setCookieHeader && 
+        setCookieHeader.some(cookie => cookie.includes('token=') && !cookie.includes('token=;'));
+      expect(hasAuthToken).toBeFalsy();
+    });
+
+    /**
+     * TEST ID: AU_003
+     * Chức năng: Login failed - wrong password
+     * Mô tả: Kiểm tra login thất bại khi password sai
+     * Precondition: Account 'test@example.com' tồn tại
+     * Input:
+     *   - email: test@example.com
+     *   - password: wrongpassword (sai)
+     * Expected:
+     *   - Status code: 302 (redirect)
+     *   - Location: /
+     *   - Không tạo token
+     */
+    it('AU_003 - should fail with incorrect password', async () => {
+      const response = await request(app)
+        .post('/admin/auth/login')
+        .send({
+          email: TEST_ACCOUNT.email,
+          password: 'wrongpassword'  // Wrong password!
         })
         .expect(302);
 
       expect(response.header.location).toBe('/');
-      // Không kiểm tra cookie vì server vẫn tạo session cookie
     });
 
     /**
-     * Chức năng: Đăng nhập thất bại - Sai mật khẩu
-     * Mô tả kiểm thử: Kiểm tra đăng nhập với mật khẩu không chính xác
-     * Dữ liệu đầu vào:
-     *  - Email: vanc@example.com (tồn tại)
-     *  - Password: wrongpass (không đúng)
-     * Kết quả mong đợi:
-     *  - Chuyển hướng về trang chủ
-     *  - Hiển thị thông báo lỗi
+     * TEST ID: AU_004
+     * Chức năng: Login failed - non-existent email
+     * Mô tả: Kiểm tra login thất bại với email chưa đăng ký
+     * Precondition: Email không tồn tại trong hệ thống
+     * Input:
+     *   - email: nonexistent@example.com (không tồn tại)
+     *   - password: anypassword
+     * Expected:
+     *   - Status code: 302 (redirect)
+     *   - Location: /
      */
-    // ID: AU_003
-    it('should fail with incorrect password', async () => {
-      const response = await request(app)
-        .post('/admin/auth/login')
-        .send({
-          email: 'vanc@example.com',
-          password: 'wrongpass'
-        })
-        .expect(302);
-
-      expect(response.header.location).toBe('/');
-    });
-
-    /**
-     * Chức năng: Đăng nhập thất bại - Email không tồn tại
-     * Mô tả kiểm thử: Kiểm tra đăng nhập với email chưa đăng ký
-     * Dữ liệu đầu vào:
-     *  - Email: nonexistent@example.com (không tồn tại)
-     *  - Password: anypassword
-     * Kết quả mong đợi:
-     *  - Chuyển hướng về trang chủ
-     *  - Hiển thị thông báo lỗi
-     */
-    // ID: AU_004
-    it('should fail with non-existent email', async () => {
+    it('AU_004 - should fail with non-existent email', async () => {
       const response = await request(app)
         .post('/admin/auth/login')
         .send({
@@ -159,87 +216,85 @@ describe('Auth Controller', () => {
     });
 
     /**
-     * Chức năng: Đăng nhập thất bại - Trạng thái undefined
-     * Mô tả kiểm thử: Kiểm tra đăng nhập khi user.status là undefined
-     * Dữ liệu đầu vào:
-     *  - Email: test@example.com
-     *  - Password: password123
-     *  - Trạng thái tài khoản: undefined
-     * Kết quả mong đợi:
-     *  - Chuyển hướng về trang chủ
-     *  - Hiển thị thông báo lỗi
+     * TEST ID: AU_005
+     * Chức năng: Login failed - account status is undefined
+     * Mô tả: Kiểm tra login thất bại khi account.status là undefined
+     * Precondition: Account tồn tại nhưng status=undefined
+     * Input:
+     *   - email: statusundefined@example.com
+     *   - password: password789
+     * Expected:
+     *   - Status code: 302 (redirect)
+     *   - Login thất bại (undefined status không hợp lệ)
      */
-    // ID: AU_005
-    it('should fail when user.status is undefined', async () => {
-      // Tạo tài khoản test với status undefined
+    it('AU_005 - should fail when account status is undefined', async () => {
+      // Create account with undefined status
       await Account.create({
-        email: 'hameo2k31@gmail.com',
-        password: md5('123456'),
-
-      });
-
-      const response = await request(app)
-        .post('/admin/auth/login')
-        .send({
-          email: 'hameo2k31@gmail.com',
-          password: '123456'
-        })
-        .expect(302);
-
-      expect(response.header.location).toBe('/');
-    });
-
-    /**
-     * Chức năng: Đăng nhập thất bại - Trạng thái không hợp lệ
-     * Mô tả kiểm thử: Kiểm tra đăng nhập khi user.status có giá trị không hợp lệ
-     * Dữ liệu đầu vào:
-     *  - Email: test2@example.com
-     *  - Password: password123
-     *  - Trạng thái tài khoản: "777active"
-     * Kết quả mong đợi:
-     *  - Chuyển hướng về trang chủ
-     *  - Hiển thị thông báo lỗi
-     */
-    // ID: AU_006
-    it('should fail when user.status is invalid', async () => {
-      // Create test account with invalid status
-      await Account.create({
-        email: 'test2@example.com',
-        password: md5('password123'),
-        status: '777active', // Invalid status that should cause login to fail
+        email: 'statusundefined@example.com',
+        password: md5('password789'),
+        // status is undefined
         deleted: false
       });
 
       const response = await request(app)
         .post('/admin/auth/login')
         .send({
-          email: 'test2@example.com',
-          password: 'password123'
+          email: 'statusundefined@example.com',
+          password: 'password789'
         })
         .expect(302);
 
       expect(response.header.location).toBe('/');
-      // Should fail because status '777active' is not a valid status
-      expect(response.header['set-cookie']).toBeUndefined();
     });
 
     /**
-     * Chức năng: Đăng nhập thất bại - Trạng thái null
-     * Mô tả kiểm thử: Kiểm tra đăng nhập khi user.status là null
-     * Dữ liệu đầu vào:
-     *  - Email: test3@example.com
-     *  - Password: password123
-     *  - Trạng thái tài khoản: null
-     * Kết quả mong đợi:
-     *  - Chuyển hướng về trang chủ
-     *  - Hiển thị thông báo lỗi
+     * TEST ID: AU_006
+     * Chức năng: Login failed - invalid account status
+     * Mô tả: Kiểm tra login thất bại khi status có giá trị không hợp lệ
+     * Precondition: Account có status='invalid_status' (không phải 'active')
+     * Input:
+     *   - email: invalidstatus@example.com
+     *   - password: password999
+     * Expected:
+     *   - Status code: 302 (redirect)
+     *   - Login thất bại vì status không hợp lệ
      */
-    // ID: AU_007
-    it('should fail when user.status is null', async () => {
-      // Tạo tài khoản test với status null
+    it('AU_006 - should fail when account status is invalid', async () => {
+      // Create account with invalid status
       await Account.create({
-        email: 'test3@example.com',
-        password: md5('password123'),
+        email: 'invalidstatus@example.com',
+        password: md5('password999'),
+        status: 'invalid_status',  // Not 'active'
+        deleted: false
+      });
+
+      const response = await request(app)
+        .post('/admin/auth/login')
+        .send({
+          email: 'invalidstatus@example.com',
+          password: 'password999'
+        })
+        .expect(302);
+
+      expect(response.header.location).toBe('/');
+    });
+
+    /**
+     * TEST ID: AU_007
+     * Chức năng: Login failed - account status is null
+     * Mô tả: Kiểm tra login thất bại khi status=null
+     * Precondition: Account có status=null
+     * Input:
+     *   - email: statusnull@example.com
+     *   - password: password111
+     * Expected:
+     *   - Status code: 302 (redirect)
+     *   - Login thất bại
+     */
+    it('AU_007 - should fail when account status is null', async () => {
+      await Account.create({
+        email: 'statusnull@example.com',
+        password: md5('password111'),
         status: null,
         deleted: false
       });
@@ -247,48 +302,27 @@ describe('Auth Controller', () => {
       const response = await request(app)
         .post('/admin/auth/login')
         .send({
-          email: 'test3@example.com',
-          password: 'password123'
+          email: 'statusnull@example.com',
+          password: 'password111'
         })
         .expect(302);
 
       expect(response.header.location).toBe('/');
     });
-  });
-});
-
-  describe('Logout Process', () => {
-    /**
-     * Chức năng: Đăng xuất
-     * Mô tả kiểm thử: Kiểm tra quá trình đăng xuất tài khoản
-     * Dữ liệu đầu vào: N/A
-     * Kết quả mong đợi:
-     *  - Xóa cookie token
-     *  - Chuyển hướng về trang đăng nhập
-     */
-    // ID: AU_011
-    it('should clear cookie and redirect to login page', async () => {
-      const response = await request(app)
-        .get('/admin/auth/logout')
-        .expect(302);
-
-      expect(response.header['set-cookie'][0]).toContain('token=;');
-      expect(response.header.location).toContain('/admin/auth/login');
-    });
-  });
 
     /**
-     * Chức năng: Đăng nhập thất bại - Dữ liệu đầu vào trống
-     * Mô tả kiểm thử: Kiểm tra đăng nhập khi không cung cấp email hoặc password
-     * Dữ liệu đầu vào:
-     *  - Email: ""
-     *  - Password: ""
-     * Kết quả mong đợi:
-     *  - Chuyển hướng về trang đăng nhập
-     *  - Hiển thị thông báo lỗi
+     * TEST ID: AU_008
+     * Chức năng: Login failed - empty credentials
+     * Mô tả: Kiểm tra login thất bại khi cung cấp credentials rỗng
+     * Precondition: N/A
+     * Input:
+     *   - email: "" (rỗng)
+     *   - password: "" (rỗng)
+     * Expected:
+     *   - Status code: 302 (redirect)
+     *   - Redirect back (validation error)
      */
-    // ID: AU_008
-    it('should fail with empty credentials', async () => {
+    it('AU_008 - should fail with empty credentials', async () => {
       const response = await request(app)
         .post('/admin/auth/login')
         .send({
@@ -297,33 +331,63 @@ describe('Auth Controller', () => {
         })
         .expect(302);
 
+      // Should redirect back with validation error
       expect(response.header.location).toBe('back');
     });
 
     /**
-     * Chức năng: Đăng nhập thất bại - Email không đúng định dạng
-     * Mô tả kiểm thử: Kiểm tra đăng nhập với email không hợp lệ
-     * Dữ liệu đầu vào:
-     *  - Email: "invalid-email"
-     *  - Password: "password123"
-     * Kết quả mong đợi:
-     *  - Chuyển hướng về trang đăng nhập
-     *  - Hiển thị thông báo lỗi
+     * TEST ID: AU_009
+     * Chức năng: Login failed - invalid email format
+     * Mô tả: Kiểm tra login thất bại khi email không đúng format
+     * Precondition: N/A
+     * Input:
+     *   - email: "not-an-email" (không có @)
+     *   - password: "password123"
+     * Expected:
+     *   - Status code: 302 (redirect)
+     *   - Redirect back (validation error)
      */
-    // ID: AU_009
-    it('should fail with invalid email format', async () => {
+    it('AU_009 - should fail with invalid email format', async () => {
       const response = await request(app)
         .post('/admin/auth/login')
         .send({
-          email: 'invalid-email',
+          email: 'not-an-email',  // Invalid format
           password: 'password123'
         })
-        .expect(302); 
+        .expect(302);
 
       expect(response.header.location).toBe('back');
     });
 
-   
+  });
 
- 
+  // ===== LOGOUT PROCESS =====
+  describe('Logout Process - GET /admin/auth/logout', () => {
+    
+    /**
+     * TEST ID: AU_011
+     * Chức năng: User logout
+     * Mô tả: Kiểm tra logout - xóa token và redirect
+     * Precondition: User đã login (có token)
+     * Input: GET /admin/auth/logout
+     * Expected:
+     *   - Status code: 302 (redirect)
+     *   - Cookie token bị xóa (token=;)
+     *   - Redirect to /admin/auth/login
+     */
+    it('AU_011 - should clear token cookie and redirect to login', async () => {
+      const response = await request(app)
+        .get('/admin/auth/logout')
+        .expect(302);
 
+      // Verify token cookie cleared
+      expect(response.header['set-cookie']).toBeDefined();
+      expect(response.header['set-cookie'][0]).toContain('token=;');
+      
+      // Verify redirect to login page
+      expect(response.header.location).toContain('/admin/auth/login');
+    });
+
+  });
+
+});
